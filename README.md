@@ -5,53 +5,66 @@ Promptfolio is a state-of-the-art AI-powered Career Operating System built with 
 ## Tech Stack
 
 ### Frontend (`client/`)
-- **React 19** with **Vite 6**
-- **TypeScript**
-- **Tailwind CSS v4** + **Shadcn UI**
-- **Framer Motion** for dynamic animations
-- **React Router** for routing
-- **TanStack Query** for data fetching & caching
-- **React Hook Form** for form handling
-- **Zustand** for state management
-- **Axios** for API calls
+- React 19 with Vite 6
+- TypeScript
+- Tailwind CSS v4 + Shadcn UI
+- Framer Motion
+- React Router
+- TanStack Query
+- React Hook Form
+- Zustand
+- Axios
 
 ### Backend (`server/`)
-- **Node.js** + **Express.js** (written in **TypeScript**)
-- **MongoDB Atlas** + **Mongoose**
-- **JWT** + **bcrypt** for authentication
-- **Multer** + **pdf-parse** for resume processing
-- **Gemini API** (`@google/genai`) for AI intelligence
+- Node.js + Express.js (TypeScript)
+- MongoDB Atlas + Mongoose
+- JWT + bcrypt
+- Multer + pdf-parse
+- Gemini API (@google/genai)
 
 ---
 
 ## Getting Started
 
-### 1. Install Dependencies
-Run the following command from the root directory to install all dependencies for the root workspace, client, and server:
+### Install Dependencies
+
 ```bash
 npm run install:all
 ```
-or simply:
+
+or
+
 ```bash
-npm install && cd server && npm install && cd ../client && npm install && cd ..
+npm install
+cd server && npm install
+cd ../client && npm install
 ```
 
-### 2. Environment Configuration
-Copy `server/.env.example` to `server/.env` and update values if needed:
+### Environment Setup
+
+Copy:
+
 ```bash
-cp server/.env.example server/.env
+server/.env.example
 ```
 
-### 3. Development Server
-Start both frontend and backend concurrently:
+to
+
+```bash
+server/.env
+```
+
+### Run Development Server
+
 ```bash
 npm run dev
 ```
-- Client runs on `http://localhost:5173`
-- Backend runs on `http://localhost:5000` (`http://localhost:5000/api/health`)
 
-### 4. Production Build
-Build both client and server applications:
+- Frontend: http://localhost:5173
+- Backend: http://localhost:5000
+
+### Production Build
+
 ```bash
 npm run build
 ```
