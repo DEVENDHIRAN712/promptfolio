@@ -163,7 +163,7 @@ export const LinkedInStudio: React.FC = () => {
       {/* Error State */}
       {generateMutation.isError && (
         <div className="p-4 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-sm">
-          <strong>LinkedIn Makeover Error:</strong> {(generateMutation.error as Error)?.message || 'Failed to generate LinkedIn makeover.'}
+          <strong>LinkedIn Makeover Error:</strong> {(generateMutation.error as any)?.response?.data?.message || (generateMutation.error as Error)?.message || 'Failed to generate LinkedIn makeover.'}
         </div>
       )}
 

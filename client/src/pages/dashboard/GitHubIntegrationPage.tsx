@@ -1,24 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { GitBranch, Search, Star, GitFork, ExternalLink, Download, Sparkles, BookOpen, CheckCircle, AlertCircle, RefreshCw } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  GitBranch, Search, Star, GitFork, ExternalLink, Download, 
+  BookOpen, CheckCircle2, AlertCircle, RefreshCw, 
+  Terminal, Filter, Code, X, FileText
+} from 'lucide-react';
+import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/ui/empty-state';
 import api from '@/lib/axios';
+import Avatar from '@/components/ui/Avatar';
 
 export const GitHubIntegrationPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [usernameInput, setUsernameInput] = useState('');
   const [activeUsername, setActiveUsername] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLang, setSelectedLang] = useState<string>('All');
+  
   const [selectedRepoForReadme, setSelectedRepoForReadme] = useState<any | null>(null);
   const [readmeContent, setReadmeContent] = useState<string | null>(null);
   const [readmeLoading, setReadmeLoading] = useState(false);
+  
   const [importSuccessMsg, setImportSuccessMsg] = useState<string | null>(null);
   const [importErrorMsg, setImportErrorMsg] = useState<string | null>(null);
+  const [importingRepoName, setImportingRepoName] = useState<string | null>(null);
 
-  // Check connected username
   const { data: profileData } = useQuery({
     queryKey: ['completeProfile'],
     queryFn: async () => {
@@ -29,7 +39,6 @@ export const GitHubIntegrationPage: React.FC = () => {
 
   const connectedUsername = profileData?.githubConnection?.username || activeUsername || '';
 
-  // Query repositories
   const { data: reposData, isLoading: reposLoading, refetch } = useQuery({
     queryKey: ['githubRepos', connectedUsername],
     queryFn: async () => {
@@ -48,15 +57,17 @@ export const GitHubIntegrationPage: React.FC = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['completeProfile'] });
       setActiveUsername(data.connection.username);
+      setImportErrorMsg(null);
       refetch();
     },
     onError: (err: any) => {
-      setImportErrorMsg(err.response?.data?.message || 'Failed to connect GitHub username.');
+      setImportErrorMsg(err.response?.data?.message || 'Failed to verify public GitHub username.');
     },
   });
 
   const importMutation = useMutation({
     mutationFn: async (repo: any) => {
+      setImportingRepoName(repo.name);
       const res = await api.post('/github/import', {
         name: repo.name,
         description: repo.description,
@@ -71,13 +82,15 @@ export const GitHubIntegrationPage: React.FC = () => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['completeProfile'] });
-      setImportSuccessMsg(`Imported "${data.project.title}" to your portfolio projects!`);
+      setImportSuccessMsg(`Repository "${data.project.title}" imported directly to your live portfolio grid!`);
       setImportErrorMsg(null);
+      setImportingRepoName(null);
       setTimeout(() => setImportSuccessMsg(null), 4000);
     },
     onError: (err: any) => {
       setImportErrorMsg(err.response?.data?.message || 'Failed to import repository.');
       setImportSuccessMsg(null);
+      setImportingRepoName(null);
     },
   });
 
@@ -88,7 +101,7 @@ export const GitHubIntegrationPage: React.FC = () => {
       const res = await api.get(`/github/readme?username=${encodeURIComponent(connectedUsername)}&repo=${encodeURIComponent(repo.name)}&branch=${encodeURIComponent(repo.defaultBranch || 'main')}`);
       setReadmeContent(res.data.readme);
     } catch {
-      setReadmeContent('Could not retrieve README text.');
+      setReadmeContent('Could not retrieve README text or file is missing.');
     } finally {
       setReadmeLoading(false);
     }
@@ -98,239 +111,309 @@ export const GitHubIntegrationPage: React.FC = () => {
     e.preventDefault();
     if (!usernameInput.trim()) return;
     setImportErrorMsg(null);
-    setImportSuccessMsg(null);
     connectMutation.mutate(usernameInput.trim());
   };
 
+  const reposList = reposData?.repositories || [];
+
+  const { filteredRepos, languages, totalStars, totalForks } = useMemo(() => {
+    let stars = 0;
+    let forks = 0;
+    const langSet = new Set<string>(['All']);
+
+    reposList.forEach((r: any) => {
+      stars += r.stars || 0;
+      forks += r.forks || 0;
+      if (r.language) langSet.add(r.language);
+    });
+
+    const filtered = reposList.filter((r: any) => {
+      const matchesQuery = !searchQuery.trim() || 
+        r.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        (r.description && r.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (r.topics && r.topics.some((t: string) => t.toLowerCase().includes(searchQuery.toLowerCase())));
+      
+      const matchesLang = selectedLang === 'All' || r.language === selectedLang;
+      return matchesQuery && matchesLang;
+    });
+
+    return {
+      filteredRepos: filtered,
+      languages: Array.from(langSet),
+      totalStars: stars,
+      totalForks: forks,
+    };
+  }, [reposList, searchQuery, selectedLang]);
+
   return (
     <div className="space-y-8 pb-12">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
-        <div>
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-400">
-            <Sparkles className="w-3.5 h-3.5" /> ZERO PERSONAL ACCESS TOKEN REQUIRED
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#E2E8F0]">
+        <div className="space-y-1.5">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#4F46E5]">
+            <GitBranch className="w-3.5 h-3.5" /> REPOSITORY INTELLIGENCE
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            GitHub Public Intelligence
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#111827] tracking-tight">
+            GitHub Telemetry Hub
           </h1>
-          <p className="text-sm text-slate-400">
-            Link your public GitHub username to fetch live repository metadata, inspect README documents, and import verified codebases directly into your portfolio.
+          <p className="text-sm text-[#64748B] max-w-2xl leading-relaxed">
+            Connect your public GitHub username to synchronize repositories, review code metadata, and import projects directly into your portfolio.
           </p>
         </div>
+
+        {connectedUsername && (
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="px-3.5 py-1.5 rounded-lg bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-mono font-bold text-[#111827] flex items-center gap-2 shadow-sm">
+              <Terminal className="w-4 h-4 text-[#4F46E5]" /> @{connectedUsername}
+            </div>
+            <button
+              onClick={() => refetch()}
+              className="p-2 rounded-lg bg-white border border-[#E2E8F0] hover:border-[#CBD5E1] text-[#64748B] hover:text-[#111827] transition-all shadow-sm"
+              title="Refresh GitHub Telemetry"
+            >
+              <RefreshCw className={`w-4 h-4 ${reposLoading ? 'animate-spin text-[#4F46E5]' : ''}`} />
+            </button>
+          </div>
+        )}
       </div>
 
-      {importSuccessMsg && (
-        <div className="p-4 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm flex items-center gap-2.5">
-          <CheckCircle className="w-5 h-5 shrink-0" />
-          <span>{importSuccessMsg}</span>
-        </div>
-      )}
+      <AnimatePresence>
+        {importSuccessMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="p-4 rounded-xl bg-[#ECFDF5] border border-[#D1FAE5] text-[#10B981] text-xs font-bold flex items-center justify-between shadow-sm"
+          >
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0" />
+              <span>{importSuccessMsg}</span>
+            </div>
+            <Badge variant="success" className="text-[10px] font-mono">
+              IMPORTED
+            </Badge>
+          </motion.div>
+        )}
 
-      {importErrorMsg && (
-        <div className="p-4 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-sm flex items-center gap-2.5">
-          <AlertCircle className="w-5 h-5 shrink-0" />
-          <span>{importErrorMsg}</span>
-        </div>
-      )}
+        {importErrorMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="p-4 rounded-xl bg-[#FEF2F2] border border-[#FEE2E2] text-[#EF4444] text-xs font-bold flex items-center gap-2.5 shadow-sm"
+          >
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{importErrorMsg}</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Connect Username Bar */}
-      <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur">
-        <CardContent className="p-6">
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-end gap-3">
-            <div className="flex-1 space-y-2 w-full">
-              <Label htmlFor="githubUsername" className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                Public GitHub Username
-              </Label>
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-500" />
-                <Input
-                  id="githubUsername"
-                  value={usernameInput}
-                  onChange={(e) => setUsernameInput(e.target.value)}
-                  placeholder="torvalds / vercel / your-username"
-                  className="pl-10 font-mono"
-                />
+      {!connectedUsername ? (
+        <Card variant="default" className="p-8 text-center max-w-2xl mx-auto shadow-sm bg-white">
+          <div className="space-y-6">
+            <div className="w-16 h-16 rounded-2xl bg-[#EEF2FF] border border-[#E0E7FF] flex items-center justify-center text-[#4F46E5] mx-auto shadow-sm">
+              <GitBranch className="w-8 h-8" />
+            </div>
+            <div className="space-y-1.5">
+              <CardTitle className="text-xl font-bold text-[#111827]">Connect Public GitHub Account</CardTitle>
+              <CardDescription className="text-xs max-w-md mx-auto text-[#64748B] leading-relaxed">
+                Enter any public GitHub username below to import public code repositories and calculate verified stars.
+              </CardDescription>
+            </div>
+
+            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto pt-2">
+              <Input
+                value={usernameInput}
+                onChange={(e) => setUsernameInput(e.target.value)}
+                placeholder="e.g. torvalds"
+                className="h-10 text-xs font-mono"
+              />
+              <Button
+                type="submit"
+                disabled={connectMutation.isPending}
+                className="h-10 px-6 font-semibold text-xs shrink-0 shadow-sm"
+              >
+                Sync Repos
+              </Button>
+            </form>
+          </div>
+        </Card>
+      ) : (
+        <div className="space-y-6">
+          <Card variant="default" className="p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm bg-white border-[#E2E8F0]">
+            <div className="flex items-center gap-4">
+              <Avatar
+                src={profileData?.profile?.avatar}
+                name={profileData?.profile?.fullName || connectedUsername}
+                sizeClass="w-14 h-14 rounded-xl text-lg border"
+              />
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-[#111827]">GitHub Repository Feed</h3>
+                  <Badge variant="success" className="text-[9px] font-semibold">Active &amp; Synced</Badge>
+                </div>
+                <p className="text-xs text-[#64748B] font-mono">
+                  Linked username: <span className="text-[#4F46E5] font-bold">@{connectedUsername}</span>
+                </p>
               </div>
             </div>
-
-            <Button
-              type="submit"
-              disabled={connectMutation.isPending || !usernameInput.trim()}
-              className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 font-semibold px-6 shrink-0"
-            >
-              {connectMutation.isPending ? 'Connecting...' : 'Connect & Fetch Repos'}
-            </Button>
-          </form>
-
-          {connectedUsername && (
-            <div className="mt-4 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-              <span className="flex items-center gap-2">
-                Connected account: <strong className="text-white font-mono">@{connectedUsername}</strong>
-              </span>
+            
+            <div className="flex items-center gap-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={() => refetch()}
-                className="text-xs text-emerald-400 hover:text-emerald-300 h-7"
+                onClick={() => connectMutation.mutate('')}
+                className="h-9 text-xs text-[#EF4444] border-transparent hover:bg-[#FEF2F2] hover:text-[#EF4444]"
               >
-                <RefreshCw className="w-3.5 h-3.5 mr-1" /> Refresh Repositories
+                Disconnect Account
               </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </Card>
 
-      {/* Repositories Grid & README Modal Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Repositories Grid */}
-        <div className={selectedRepoForReadme ? 'lg:col-span-7 space-y-4' : 'lg:col-span-12 space-y-4'}>
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <GitBranch className="w-4 h-4 text-emerald-400" /> Available Public Repositories
-            </h3>
-            {reposData?.repos && (
-              <Badge className="bg-slate-800 text-slate-300 border-slate-700 text-xs">
-                {reposData.repos.length} Repositories
-              </Badge>
-            )}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <Card variant="default" className="p-4 flex items-center gap-3.5 shadow-sm">
+              <div className="p-2.5 rounded-xl bg-[#EEF2FF] border border-[#E0E7FF] text-[#4F46E5] shrink-0">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-mono uppercase tracking-wider text-[#64748B] font-bold">Repos</p>
+                <p className="text-xl font-bold text-[#111827] font-mono mt-0.5">{reposList.length}</p>
+              </div>
+            </Card>
+            <Card variant="default" className="p-4 flex items-center gap-3.5 shadow-sm">
+              <div className="p-2.5 rounded-xl bg-[#FFFBEB] border border-[#FEF3C7] text-[#F59E0B] shrink-0">
+                <Star className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-mono uppercase tracking-wider text-[#64748B] font-bold">Stars</p>
+                <p className="text-xl font-bold text-[#111827] font-mono mt-0.5">{totalStars}</p>
+              </div>
+            </Card>
+            <Card variant="default" className="p-4 flex items-center gap-3.5 shadow-sm">
+              <div className="p-2.5 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] text-[#64748B] shrink-0">
+                <GitFork className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-mono uppercase tracking-wider text-[#64748B] font-bold">Forks</p>
+                <p className="text-xl font-bold text-[#111827] font-mono mt-0.5">{totalForks}</p>
+              </div>
+            </Card>
+            <Card variant="default" className="p-4 flex items-center gap-3.5 shadow-sm">
+              <div className="p-2.5 rounded-xl bg-[#ECFDF5] border border-[#D1FAE5] text-[#10B981] shrink-0">
+                <Code className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[11px] font-mono uppercase tracking-wider text-[#64748B] font-bold">Languages</p>
+                <p className="text-xl font-bold text-[#111827] font-mono mt-0.5">{Math.max(0, languages.length - 1)}</p>
+              </div>
+            </Card>
+          </div>
+
+          <div className="p-4 rounded-xl bg-white border border-[#E2E8F0] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search repositories by title or topic..."
+                className="pl-10 h-10 text-xs bg-[#F8FAFC] border-[#E2E8F0]"
+              />
+            </div>
+            <div className="flex items-center gap-2 shrink-0 overflow-x-auto pb-1 sm:pb-0">
+              <span className="text-xs text-[#64748B] flex items-center gap-1 font-semibold">
+                <Filter className="w-3.5 h-3.5" /> Filter:
+              </span>
+              {languages.map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setSelectedLang(lang)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${selectedLang === lang ? 'bg-[#4F46E5] text-white shadow-sm' : 'bg-[#F8FAFC] text-[#64748B] hover:text-[#111827] border border-[#E2E8F0]'}`}
+                >
+                  {lang}
+                </button>
+              ))}
+            </div>
           </div>
 
           {reposLoading ? (
-            <div className="p-12 text-center text-slate-400 bg-slate-900/40 rounded-2xl border border-slate-800/80">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto text-emerald-400 mb-2" />
-              <p className="text-sm">Querying GitHub API for repositories...</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {[1, 2, 3, 4].map((n) => (
+                <div key={n} className="p-6 rounded-xl bg-white border border-[#E2E8F0] animate-pulse h-40" />
+              ))}
             </div>
-          ) : !reposData?.repos || reposData.repos.length === 0 ? (
-            <div className="p-12 text-center text-slate-500 bg-slate-900/40 rounded-2xl border border-dashed border-slate-800">
-              <GitBranch className="w-8 h-8 mx-auto text-slate-600 mb-3" />
-              <p className="text-sm">No repositories loaded yet.</p>
-              <p className="text-xs text-slate-600 mt-1">Enter a public username above to inspect repositories.</p>
-            </div>
+          ) : filteredRepos.length === 0 ? (
+            <EmptyState
+              icon={GitBranch}
+              title="No Repositories Found"
+              description="Try adjusting your search criteria or language filter above."
+            />
           ) : (
-            <div className={`grid grid-cols-1 ${selectedRepoForReadme ? 'gap-4' : 'md:grid-cols-2 gap-4'}`}>
-              {reposData.repos.map((repo: any) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {filteredRepos.map((repo: any) => (
                 <Card
-                  key={repo.id}
-                  className="border-slate-800/80 bg-slate-900/60 backdrop-blur hover:border-slate-700 transition-all flex flex-col justify-between"
+                  key={repo.id || repo.name}
+                  variant="default"
+                  className="p-5 flex flex-col justify-between group shadow-sm hover:border-[#CBD5E1]"
                 >
-                  <CardHeader className="pb-3">
+                  <div className="space-y-2.5">
                     <div className="flex items-start justify-between gap-2">
-                      <CardTitle className="text-base font-bold text-white leading-tight font-mono">
-                        {repo.name}
-                      </CardTitle>
-                      <Badge variant="outline" className="text-[10px] uppercase font-bold text-blue-400 border-blue-500/30 shrink-0">
-                        {repo.language || 'Code'}
-                      </Badge>
+                      <h3 className="text-sm font-bold text-[#111827] truncate">{repo.name}</h3>
+                      {repo.language && <Badge variant="secondary" className="text-[10px] bg-[#F8FAFC] border-[#E2E8F0] text-[#111827] font-semibold">{repo.language}</Badge>}
                     </div>
-                    <CardDescription className="text-xs text-slate-400 line-clamp-2 pt-1">
-                      {repo.description || 'No description provided.'}
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="py-2">
-                    {repo.topics && repo.topics.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5">
-                        {repo.topics.slice(0, 4).map((t: string, i: number) => (
-                          <span
-                            key={i}
-                            className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-400 text-[10px] font-mono"
-                          >
-                            #{t}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-
-                  <CardFooter className="border-t border-slate-800/60 pt-3 flex items-center justify-between text-xs text-slate-400">
-                    <div className="flex items-center gap-3">
-                      <span className="flex items-center gap-1 text-amber-400 font-mono">
-                        <Star className="w-3.5 h-3.5 fill-amber-400" /> {repo.stars}
-                      </span>
-                      <span className="flex items-center gap-1 font-mono">
-                        <GitFork className="w-3.5 h-3.5" /> {repo.forks}
-                      </span>
+                    <p className="text-xs text-[#64748B] leading-relaxed line-clamp-2">{repo.description || 'No repository description provided.'}</p>
+                  </div>
+                  <div className="pt-4 mt-4 border-t border-[#F1F5F9] flex items-center justify-between">
+                    <div className="flex items-center gap-3 text-xs text-[#64748B] font-semibold">
+                      <span className="flex items-center gap-1"><Star className="w-3.5 h-3.5 text-[#F59E0B]" /> {repo.stars}</span>
+                      <span className="flex items-center gap-1"><GitFork className="w-3.5 h-3.5 text-[#64748B]" /> {repo.forks}</span>
                     </div>
-
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleFetchReadme(repo)}
-                        className="h-8 text-xs text-slate-300 hover:text-white"
-                      >
-                        <BookOpen className="w-3.5 h-3.5 mr-1" /> README
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={() => handleFetchReadme(repo)} className="h-8 text-xs font-semibold border-[#E2E8F0]">
+                        <FileText className="w-3.5 h-3.5 mr-1 text-[#4F46E5]" /> README
                       </Button>
-                      <Button
-                        size="sm"
-                        onClick={() => importMutation.mutate(repo)}
-                        disabled={importMutation.isPending}
-                        className="h-8 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-3 shadow-md shadow-emerald-600/20"
-                      >
+                      <Button size="sm" onClick={() => importMutation.mutate(repo)} disabled={importingRepoName === repo.name} className="h-8 text-xs font-semibold bg-[#10B981] hover:bg-[#059669] text-white">
                         <Download className="w-3.5 h-3.5 mr-1" /> Import
                       </Button>
                     </div>
-                  </CardFooter>
+                  </div>
                 </Card>
               ))}
             </div>
           )}
         </div>
+      )}
 
-        {/* README Preview Panel */}
+      <AnimatePresence>
         {selectedRepoForReadme && (
-          <div className="lg:col-span-5">
-            <Card className="border-slate-800/80 bg-slate-900/80 backdrop-blur sticky top-20">
-              <CardHeader className="border-b border-slate-800/80 pb-3 flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="text-base font-bold text-white flex items-center gap-2 font-mono">
-                    <BookOpen className="w-4 h-4 text-emerald-400" /> {selectedRepoForReadme.name} / README.md
-                  </CardTitle>
-                  <CardDescription className="text-xs">Fetched directly via GitHub RAW content</CardDescription>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedRepoForReadme(null)}
-                  className="text-xs text-slate-400 hover:text-white h-7 px-2"
-                >
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4"
+            onClick={() => setSelectedRepoForReadme(null)}
+          >
+            <motion.div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border border-[#E2E8F0] rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden"
+            >
+              <div className="p-4 border-b border-[#E2E8F0] flex items-center justify-between bg-[#F8FAFC]">
+                <h3 className="text-sm font-bold text-[#111827]">{selectedRepoForReadme.name} &bull; README.md</h3>
+                <button onClick={() => setSelectedRepoForReadme(null)} className="text-[#64748B] hover:text-[#111827]"><X className="w-4 h-4" /></button>
+              </div>
+              <div className="p-6 overflow-y-auto font-mono text-xs leading-relaxed whitespace-pre-wrap max-h-[65vh] text-[#111827]">
+                {readmeLoading ? "Loading README content..." : readmeContent}
+              </div>
+              <div className="p-4 border-t border-[#E2E8F0] bg-[#F8FAFC] flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setSelectedRepoForReadme(null)} className="text-xs font-semibold border-[#E2E8F0]">
                   Close
                 </Button>
-              </CardHeader>
-              <CardContent className="p-4 max-h-[500px] overflow-y-auto">
-                {readmeLoading ? (
-                  <div className="py-12 text-center text-slate-400">
-                    <RefreshCw className="w-6 h-6 animate-spin mx-auto text-emerald-400 mb-2" />
-                    <p className="text-xs font-mono">Fetching README from GitHub...</p>
-                  </div>
-                ) : (
-                  <pre className="text-xs font-mono text-slate-300 whitespace-pre-wrap leading-relaxed bg-slate-950/80 p-4 rounded-xl border border-slate-800">
-                    {readmeContent || 'No README text available.'}
-                  </pre>
-                )}
-              </CardContent>
-              <CardFooter className="border-t border-slate-800/80 pt-3 flex justify-end gap-3">
-                <a
-                  href={selectedRepoForReadme.htmlUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white font-mono"
-                >
-                  Open on GitHub <ExternalLink className="w-3 h-3" />
-                </a>
-                <Button
-                  size="sm"
-                  onClick={() => importMutation.mutate(selectedRepoForReadme)}
-                  disabled={importMutation.isPending}
-                  className="bg-emerald-600 hover:bg-emerald-500 font-semibold text-xs shadow-md shadow-emerald-600/20"
-                >
-                  <Download className="w-3.5 h-3.5 mr-1" /> Import to Portfolio
+                <Button onClick={() => { importMutation.mutate(selectedRepoForReadme); setSelectedRepoForReadme(null); }} className="bg-[#10B981] hover:bg-[#059669] text-white text-xs font-semibold">
+                  Import Project to Portfolio
                 </Button>
-              </CardFooter>
-            </Card>
-          </div>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
     </div>
   );
 };

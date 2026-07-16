@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Award, Plus, Trash2, ExternalLink, Calendar, Check } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Award, Plus, Trash2, ExternalLink, Calendar, CheckCircle2, ShieldCheck, X, Building, KeyRound } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/ui/empty-state';
 import api from '@/lib/axios';
 
 interface CertificatesSectionProps {
@@ -50,174 +51,231 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({ certif
 
   return (
     <div className="space-y-6">
-      <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div>
-            <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
-              <Award className="w-5 h-5 text-blue-400" /> Licenses &amp; Professional Certifications
-            </CardTitle>
-            <CardDescription>
-              List recognized industry achievements, AWS certifications, and bootcamp completions
-            </CardDescription>
-          </div>
-          {!isAdding && (
-            <Button
-              onClick={() => {
-                setFormData(initialFormState);
-                setIsAdding(true);
-              }}
-              size="sm"
-              className="bg-blue-600 hover:bg-blue-500 font-semibold text-xs"
-            >
-              <Plus className="w-3.5 h-3.5 mr-1" /> Add Certificate
-            </Button>
-          )}
-        </CardHeader>
+      {/* Top Header Card */}
+      <Card variant="glass" className="border-border p-6 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+            <Award className="w-5 h-5 text-primary" /> Licenses &amp; Professional Certifications
+          </CardTitle>
+          <CardDescription>
+            Showcase AWS credentials, specialized certifications, and bootcamp graduation diplomas
+          </CardDescription>
+        </div>
 
-        {isAdding && (
-          <CardContent className="border-t border-slate-800/80 pt-4 bg-slate-950/40">
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                addMutation.mutate(formData);
-              }}
-              className="space-y-4"
-            >
-              <h4 className="text-sm font-bold text-white">Add Professional Certificate</h4>
+        {!isAdding && (
+          <Button
+            onClick={() => {
+              setFormData(initialFormState);
+              setIsAdding(true);
+            }}
+            variant="glow"
+            size="sm"
+            className="font-bold text-xs gap-1.5 shrink-0"
+          >
+            <Plus className="w-4 h-4" /> Add Certificate
+          </Button>
+        )}
+      </Card>
+
+      {/* Add New Certificate Drawer Card */}
+      {isAdding && (
+        <Card variant="glass" className="border-primary/60 bg-surface-2/90 shadow-glow-primary animate-in fade-in-50 duration-200">
+          <CardHeader className="border-b border-border/80 pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center">
+                  <Award className="w-4 h-4" />
+                </div>
+                <div>
+                  <CardTitle className="text-sm font-bold text-foreground">Add Professional Credential</CardTitle>
+                  <CardDescription className="text-[11px]">Enter certificate and verification details.</CardDescription>
+                </div>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setIsAdding(false)} className="h-8 w-8 p-0">
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </CardHeader>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              addMutation.mutate(formData);
+            }}
+          >
+            <CardContent className="space-y-4 pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="certTitle">Certificate / License Name</Label>
+                  <Label htmlFor="certTitle" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Award className="w-3.5 h-3.5 text-primary" /> Certificate / License Name
+                  </Label>
                   <Input
                     id="certTitle"
                     required
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="AWS Certified Solutions Architect – Associate"
+                    className="h-10 text-sm font-semibold"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="issuer">Issuing Organization</Label>
+                  <Label htmlFor="issuer" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Building className="w-3.5 h-3.5 text-primary" /> Issuing Organization
+                  </Label>
                   <Input
                     id="issuer"
                     required
                     value={formData.issuer}
                     onChange={(e) => setFormData({ ...formData, issuer: e.target.value })}
-                    placeholder="Amazon Web Services (AWS) / Coursera"
+                    placeholder="Amazon Web Services (AWS), Coursera, Y Combinator"
+                    className="h-10 text-sm font-semibold"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="issueDate">Issue Date</Label>
+                  <Label htmlFor="issueDate" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-primary" /> Issue Date
+                  </Label>
                   <Input
                     id="issueDate"
                     type="month"
                     required
                     value={formData.issueDate}
                     onChange={(e) => setFormData({ ...formData, issueDate: e.target.value })}
+                    className="h-10 text-xs font-mono"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="expiryDate">Expiration Date (if applicable)</Label>
+                  <Label htmlFor="expiryDate" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-primary" /> Expiration Date (Optional)
+                  </Label>
                   <Input
                     id="expiryDate"
                     type="month"
                     value={formData.expiryDate}
                     onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
+                    className="h-10 text-xs font-mono"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="credentialId">Credential ID / License Number</Label>
+                  <Label htmlFor="credentialId" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5 text-primary" /> Credential ID / License Number
+                  </Label>
                   <Input
                     id="credentialId"
                     value={formData.credentialId}
                     onChange={(e) => setFormData({ ...formData, credentialId: e.target.value })}
-                    placeholder="AWS-12345678"
+                    placeholder="AWS-12345678-ABCD"
+                    className="h-10 text-xs font-mono"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="credentialUrl">Credential Verification URL</Label>
+                  <Label htmlFor="credentialUrl" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                    Verification URL (Credly / Certificate Link)
+                  </Label>
                   <Input
                     id="credentialUrl"
                     value={formData.credentialUrl}
                     onChange={(e) => setFormData({ ...formData, credentialUrl: e.target.value })}
                     placeholder="https://credly.com/badges/..."
+                    className="h-10 text-xs font-mono"
                   />
                 </div>
               </div>
+            </CardContent>
 
-              <div className="flex justify-end gap-3 pt-2">
-                <Button type="button" variant="outline" size="sm" onClick={() => setIsAdding(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" size="sm" disabled={addMutation.isPending} className="bg-blue-600 hover:bg-blue-500">
-                  {addMutation.isPending ? 'Saving...' : 'Save Certificate'}
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        )}
+            <CardFooter className="border-t border-border/80 pt-4 flex justify-end gap-3">
+              <Button type="button" variant="outline" size="sm" onClick={() => setIsAdding(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="glow" size="sm" isLoading={addMutation.isPending} className="font-bold px-6">
+                Save Credential
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      )}
 
-        <CardContent className="pt-2 space-y-4">
-          {certificates.length === 0 && !isAdding ? (
-            <div className="text-center py-8 text-slate-500 border border-dashed border-slate-800 rounded-xl">
-              <p className="text-sm">No professional certificates added yet.</p>
-              <p className="text-xs text-slate-600 mt-1">Add your AWS, Google, or industry certifications above.</p>
-            </div>
-          ) : (
-            certificates.map((cert) => (
-              <div
-                key={cert._id}
-                className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-base font-bold text-white">{cert.title}</h4>
-                    <Badge className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] uppercase">
-                      Verified
-                    </Badge>
-                  </div>
-                  <p className="text-sm font-semibold text-slate-300">{cert.issuer}</p>
-                  <p className="text-xs text-slate-500 font-mono flex items-center gap-2">
-                    <span>Issued: {cert.issueDate}</span>
-                    {cert.expiryDate && <span>&bull; Expires: {cert.expiryDate}</span>}
-                    {cert.credentialId && <span>&bull; ID: {cert.credentialId}</span>}
-                  </p>
+      {/* Certificates List */}
+      {certificates.length === 0 && !isAdding ? (
+        <EmptyState
+          icon={Award}
+          title="No Professional Certifications Documented"
+          description="You haven't listed any certificates or licenses yet. Add cloud certifications, specialized AI diplomas, or recognized courses to stand out."
+          actionLabel="Add Credential"
+          onAction={() => {
+            setFormData(initialFormState);
+            setIsAdding(true);
+          }}
+        />
+      ) : (
+        <div className="space-y-4">
+          {certificates.map((cert) => (
+            <Card
+              key={cert._id}
+              variant="interactive"
+              className="p-5 border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="text-base font-black text-foreground">{cert.title}</h4>
+                  <Badge variant="glass" className="text-[10px] font-mono px-2 py-0.2 uppercase flex items-center gap-1 text-purple-300 border-purple-500/40 bg-purple-500/10">
+                    <ShieldCheck className="w-3 h-3 text-primary inline" /> Verified
+                  </Badge>
                 </div>
-
-                <div className="flex items-center gap-3 self-end sm:self-center shrink-0">
-                  {cert.credentialUrl && (
-                    <a
-                      href={cert.credentialUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-blue-400 hover:underline"
-                    >
-                      Verify <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
+                <p className="text-sm font-bold text-primary flex items-center gap-1.5">
+                  <Building className="w-4 h-4 shrink-0" />
+                  <span>{cert.issuer}</span>
+                </p>
+                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-mono pt-1">
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-3.5 h-3.5 text-primary" /> Issued: {cert.issueDate}
+                  </span>
+                  {cert.expiryDate && (
+                    <span>&bull; Expires: {cert.expiryDate}</span>
                   )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      if (confirm(`Delete certificate "${cert.title}"?`)) {
-                        deleteMutation.mutate(cert._id);
-                      }
-                    }}
-                    className="h-8 w-8 p-0 text-slate-400 hover:text-red-400"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
+                  {cert.credentialId && (
+                    <span className="bg-surface-2 px-2 py-0.5 rounded border border-border/80">
+                      ID: {cert.credentialId}
+                    </span>
+                  )}
                 </div>
               </div>
-            ))
-          )}
-        </CardContent>
-      </Card>
+
+              <div className="flex items-center gap-3 self-start sm:self-center shrink-0">
+                {cert.credentialUrl && (
+                  <a
+                    href={cert.credentialUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20"
+                  >
+                    Verify Credential <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    if (confirm(`Remove certificate "${cert.title}"?`)) {
+                      deleteMutation.mutate(cert._id);
+                    }
+                  }}
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                  title="Remove certificate"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -7,8 +7,11 @@ export interface ISocialLinks {
   portfolio?: string;
 }
 
+export type PortfolioThemeType = 'Apple' | 'Glass' | 'Minimal' | 'Cyberpunk' | 'Developer Terminal' | 'Modern SaaS';
+
 export interface IProfile extends Document {
   userId: mongoose.Types.ObjectId;
+  username?: string;
   title?: string;
   bio?: string;
   avatar?: string;
@@ -16,6 +19,8 @@ export interface IProfile extends Document {
   socialLinks: ISocialLinks;
   completionPercentage: number;
   aiStatus: 'idle' | 'analyzing' | 'optimized' | 'needs_improvement';
+  theme: PortfolioThemeType;
+  isPublished: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,6 +40,13 @@ const ProfileSchema: Schema<IProfile> = new Schema(
       required: true,
       unique: true,
       index: true,
+    },
+    username: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      index: true,
+      sparse: true,
     },
     title: {
       type: String,
@@ -64,6 +76,15 @@ const ProfileSchema: Schema<IProfile> = new Schema(
       type: String,
       enum: ['idle', 'analyzing', 'optimized', 'needs_improvement'],
       default: 'optimized',
+    },
+    theme: {
+      type: String,
+      enum: ['Apple', 'Glass', 'Minimal', 'Cyberpunk', 'Developer Terminal', 'Modern SaaS'],
+      default: 'Apple',
+    },
+    isPublished: {
+      type: Boolean,
+      default: true,
     },
   },
   {

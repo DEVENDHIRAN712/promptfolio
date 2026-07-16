@@ -36,7 +36,7 @@ export const TabsList = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
     <div
       ref={ref}
       className={cn(
-        "inline-flex h-10 items-center justify-center rounded-lg bg-slate-900 p-1 text-slate-400 border border-slate-800/80",
+        "inline-flex h-10 items-center justify-center rounded-lg bg-surface-1 p-1 text-muted-foreground border border-border shadow-sm",
         className
       )}
       {...props}
@@ -61,8 +61,8 @@ export const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>
         type="button"
         onClick={() => context.onValueChange(value)}
         className={cn(
-          "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 disabled:pointer-events-none disabled:opacity-50",
-          isActive ? "bg-slate-800 text-white shadow-sm" : "hover:text-slate-200",
+          "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3.5 py-1.5 text-xs sm:text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+          isActive ? "bg-surface-2 text-foreground shadow-sm font-semibold border border-border-hover/50" : "hover:text-foreground hover:bg-surface-2/40",
           className
         )}
         {...props}
@@ -87,7 +87,7 @@ export const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
     return (
       <div
         ref={ref}
-        className={cn("mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2", className)}
+        className={cn("mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring animate-in fade-in-50 duration-200", className)}
         {...props}
       >
         {children}

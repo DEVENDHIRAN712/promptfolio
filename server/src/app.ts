@@ -33,10 +33,35 @@ app.get('/api/health', (_req: Request, res: Response) => {
   res.status(200).json({
     status: 'ok',
     service: 'Promptfolio API',
-    phase: 'Phase 2 - AI Engine Active',
+    phase: 'Phase 4 - Public Portfolio & SEO Active',
     timestamp: new Date().toISOString(),
     database: getDBStatus(),
   });
+});
+
+// SEO & Sitemap Endpoints
+app.get('/robots.txt', (_req: Request, res: Response) => {
+  res.type('text/plain');
+  res.send(`User-agent: *\nAllow: /\nSitemap: http://localhost:5000/sitemap.xml\n`);
+});
+
+app.get('/sitemap.xml', async (_req: Request, res: Response) => {
+  try {
+    const { Profile } = await import('./models/Profile');
+    const profiles = await Profile.find({ isPublished: true });
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+    xml += `  <url>\n    <loc>http://localhost:5173/</loc>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>\n`;
+    for (const p of profiles) {
+      if (p.username) {
+        xml += `  <url>\n    <loc>http://localhost:5173/p/${p.username}</loc>\n    <lastmod>${p.updatedAt ? new Date(p.updatedAt).toISOString() : new Date().toISOString()}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.9</priority>\n  </url>\n`;
+      }
+    }
+    xml += `</urlset>`;
+    res.type('application/xml');
+    res.send(xml);
+  } catch (error) {
+    res.status(500).send('Error generating sitemap');
+  }
 });
 
 // Root fallback

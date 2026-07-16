@@ -211,7 +211,7 @@ export const ReadmeStudio: React.FC = () => {
       {/* Error State */}
       {generateMutation.isError && (
         <div className="p-4 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-sm">
-          <strong>README Generation Error:</strong> {(generateMutation.error as Error)?.message || 'Failed to generate README.'}
+          <strong>README Generation Error:</strong> {(generateMutation.error as any)?.response?.data?.message || (generateMutation.error as Error)?.message || 'Failed to generate README.'}
         </div>
       )}
 

@@ -1,23 +1,34 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useDropzone } from 'react-dropzone';
-import { FileText, UploadCloud, CheckCircle, AlertCircle, Sparkles, RefreshCw, Eye, Edit3, ArrowRight, ShieldCheck } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { FileText, UploadCloud, CheckCircle2, AlertCircle, RefreshCw, Eye, Edit3, ArrowRight, ShieldCheck, Cpu, User, FileCheck, Zap } from 'lucide-react';
+import { Card, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { EmptyState } from '@/components/ui/empty-state';
 import api from '@/lib/axios';
+import Avatar from '@/components/ui/Avatar';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export const ResumeStudioPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [activeResume, setActiveResume] = useState<any | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  // Editable review state
+  const { data: profileData } = useQuery({
+    queryKey: ['completeProfile'],
+    queryFn: async () => {
+      const res = await api.get('/profile/all');
+      return res.data;
+    },
+  });
+
   const [reviewForm, setReviewForm] = useState({
     fullName: '',
     email: '',
@@ -101,266 +112,396 @@ export const ResumeStudioPage: React.FC = () => {
     maxFiles: 1,
   });
 
+  const getHealthColor = (score: number) => {
+    if (score >= 85) return 'text-[#10B981] bg-[#ECFDF5] border-[#D1FAE5]';
+    if (score >= 65) return 'text-[#4F46E5] bg-[#EEF2FF] border-[#E0E7FF]';
+    if (score >= 40) return 'text-[#F59E0B] bg-[#FFFBEB] border-[#FEF3C7]';
+    return 'text-[#EF4444] bg-[#FEF2F2] border-[#FEE2E2]';
+  };
+
   return (
     <div className="space-y-8 pb-12">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-800/80">
-        <div>
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-purple-400">
-            <Sparkles className="w-3.5 h-3.5" /> AI PARSING ENGINE
+      {/* Top Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[#E2E8F0]">
+        <div className="space-y-2">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#4F46E5]">
+              <FileText className="w-3.5 h-3.5" /> Resume Review Studio
+            </span>
+            <span className="text-slate-300 hidden sm:inline">&bull;</span>
+            <span className="inline-flex items-center gap-1 text-[10px] font-mono text-[#10B981] bg-[#ECFDF5] border border-[#D1FAE5] px-2 py-0.5 rounded font-bold uppercase tracking-wider select-none">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
+              Auto Save Enabled
+            </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-            Interactive Resume Studio
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#111827] tracking-tight">
+            Verify and Refine Your Resume
           </h1>
-          <p className="text-sm text-slate-400">
-            Drop your PDF resume below. Inspect extracted candidate data and review every field before syncing.
+          <p className="text-sm text-[#64748B] max-w-2xl leading-relaxed">
+            Upload your PDF resume to parse its contents. Inspect information details, refine skills, and update your public portfolio.
           </p>
         </div>
+
+        {activeResume && (
+          <div className="flex items-center gap-3 shrink-0">
+            <a
+              href={activeResume.fileUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-[#E2E8F0] hover:border-[#CBD5E1] text-xs font-semibold text-[#111827] transition-all shadow-sm"
+            >
+              <Eye className="w-4 h-4 text-[#4F46E5]" /> View Original PDF
+            </a>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Dropzone & Upload History */}
+        {/* Left Column: Dropzone & Upload History Panel (Col 5) */}
         <div className="lg:col-span-5 space-y-6">
-          <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur">
-            <CardHeader>
-              <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-                <UploadCloud className="w-4 h-4 text-purple-400" /> Upload PDF Resume
-              </CardTitle>
-              <CardDescription>Supported format: PDF (up to 10MB)</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div
-                {...getRootProps()}
-                className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[220px] ${
-                  isDragActive
-                    ? 'border-purple-500 bg-purple-500/10'
-                    : 'border-slate-800 hover:border-slate-700 bg-slate-950/50 hover:bg-slate-950/80'
-                }`}
-              >
-                <input {...getInputProps()} />
-                <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 mb-4 shadow-inner">
-                  {uploading ? <RefreshCw className="w-6 h-6 animate-spin text-purple-400" /> : <UploadCloud className="w-7 h-7" />}
-                </div>
+          {/* Drag and Drop Card */}
+          <Card variant="default" className="p-6 shadow-sm">
+            <CardTitle className="text-sm font-bold text-[#111827] flex items-center gap-2 mb-1">
+              <UploadCloud className="w-4 h-4 text-[#4F46E5]" /> Resume PDF Upload
+            </CardTitle>
+            <CardDescription className="text-xs text-[#64748B] mb-4">
+              Upload your resume in PDF format (up to 10MB) to populate your profile
+            </CardDescription>
 
-                {uploading ? (
-                  <div className="space-y-1">
-                    <p className="text-sm font-bold text-white">Extracting text &amp; candidate tokens...</p>
-                    <p className="text-xs text-slate-400">Running heuristic regex mapping on PDF buffer</p>
-                  </div>
-                ) : isDragActive ? (
-                  <p className="text-sm font-bold text-purple-400">Drop the PDF resume file here...</p>
-                ) : (
-                  <div className="space-y-1.5">
-                    <p className="text-sm font-semibold text-white">
-                      Drag &amp; drop PDF resume here, or <span className="text-purple-400 underline">browse</span>
-                    </p>
-                    <p className="text-xs text-slate-500">Instant extraction of summary and core skills</p>
-                  </div>
-                )}
+            <div
+              {...getRootProps()}
+              className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[220px] group ${
+                isDragActive
+                  ? 'border-[#4F46E5] bg-[#EEF2FF]/50 scale-[0.99]'
+                  : 'border-[#CBD5E1] hover:border-[#4F46E5] bg-[#F8FAFC] hover:bg-white'
+              }`}
+            >
+              <input {...getInputProps()} />
+              <div className={`w-12 h-12 rounded-xl border flex items-center justify-center mb-4 transition-all ${
+                isDragActive ? 'bg-[#4F46E5] border-[#4F46E5] text-white scale-110' : 'bg-white border-[#E2E8F0] text-[#4F46E5] group-hover:scale-105 shadow-sm'
+              }`}>
+                {uploading ? <RefreshCw className="w-6 h-6 animate-spin text-[#4F46E5]" /> : <UploadCloud className="w-6 h-6" />}
               </div>
 
-              {uploadError && (
-                <div className="mt-3 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{uploadError}</span>
+              {uploading ? (
+                <div className="space-y-1">
+                  <p className="text-sm font-bold text-[#111827] flex items-center justify-center gap-2">
+                    Extracting Candidate Tokens...
+                  </p>
+                  <p className="text-xs text-[#64748B] font-mono">
+                    Running heuristic mapping &amp; skill matching
+                  </p>
+                </div>
+              ) : isDragActive ? (
+                <p className="text-sm font-bold text-[#4F46E5]">Release to parse PDF file...</p>
+              ) : (
+                <div className="space-y-1.5">
+                  <p className="text-sm font-bold text-[#111827]">
+                    Drag &amp; drop your PDF resume here, or <span className="text-[#4F46E5] underline underline-offset-4">browse</span>
+                  </p>
+                  <p className="text-xs text-[#64748B]">
+                    Auto-detects contact details, executive bio &amp; skills
+                  </p>
                 </div>
               )}
-            </CardContent>
+            </div>
+
+            {uploadError && (
+              <div className="mt-4 p-3.5 rounded-xl bg-[#FEF2F2] border border-[#FEE2E2] text-[#EF4444] text-xs font-medium flex items-center gap-2.5">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{uploadError}</span>
+              </div>
+            )}
           </Card>
 
-          {/* Upload History List */}
-          <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur">
-            <CardHeader>
-              <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-                <FileText className="w-4 h-4 text-blue-400" /> Upload History
+          {/* Upload History Repository */}
+          <Card variant="default" className="p-6 shadow-sm">
+            <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-3 mb-4">
+              <CardTitle className="text-sm font-bold text-[#111827] flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#4F46E5]" /> Document History
               </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
+              {resumesData && resumesData.length > 0 && (
+                <Badge variant="secondary" className="text-[10px] font-mono px-2 py-0.5">
+                  {resumesData.length} {resumesData.length === 1 ? 'file' : 'files'}
+                </Badge>
+              )}
+            </div>
+
+            <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
               {isLoading ? (
-                <p className="text-xs text-slate-500 py-4 text-center">Loading resume history...</p>
+                <div className="py-8 text-center text-xs text-[#64748B] font-mono">
+                  Loading resume documents...
+                </div>
               ) : !resumesData || resumesData.length === 0 ? (
-                <p className="text-xs text-slate-500 py-6 text-center border border-dashed border-slate-800 rounded-xl">
-                  No resumes uploaded yet.
-                </p>
+                <EmptyState
+                  icon={FileText}
+                  title="No Resumes Uploaded"
+                  description="Drop your PDF resume in the box above to begin candidate review."
+                />
               ) : (
-                resumesData.map((res: any) => (
-                  <div
-                    key={res._id}
-                    onClick={() => {
-                      setActiveResume(res);
-                      setReviewForm({
-                        fullName: res.parsedData?.fullName || '',
-                        email: res.parsedData?.email || '',
-                        phone: res.parsedData?.phone || '',
-                        summary: res.parsedData?.summary || '',
-                        skillsStr: Array.isArray(res.parsedData?.skills) ? res.parsedData.skills.join(', ') : '',
-                        applyToProfile: true,
-                      });
-                    }}
-                    className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
-                      activeResume?._id === res._id
-                        ? 'bg-purple-500/15 border-purple-500/40 text-white shadow-sm'
-                        : 'bg-slate-950/60 border-slate-800/80 hover:border-slate-700 text-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <FileText className="w-4 h-4 text-purple-400 shrink-0" />
-                      <div className="overflow-hidden">
-                        <p className="text-xs font-semibold truncate">{res.originalName}</p>
-                        <p className="text-[10px] text-slate-500 font-mono">
-                          {new Date(res.uploadedAt).toLocaleDateString()} &bull; {Math.round(res.fileSize / 1024)} KB
-                        </p>
+                resumesData.map((res: any) => {
+                  const isActive = activeResume?._id === res._id;
+                  return (
+                    <div
+                      key={res._id}
+                      onClick={() => {
+                        setActiveResume(res);
+                        setReviewForm({
+                          fullName: res.parsedData?.fullName || '',
+                          email: res.parsedData?.email || '',
+                          phone: res.parsedData?.phone || '',
+                          summary: res.parsedData?.summary || '',
+                          skillsStr: Array.isArray(res.parsedData?.skills) ? res.parsedData.skills.join(', ') : '',
+                          applyToProfile: true,
+                        });
+                      }}
+                      className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between group ${
+                        isActive
+                          ? 'bg-[#EEF2FF] border-[#4F46E5] shadow-sm'
+                          : 'bg-[#F8FAFC] border-[#E2E8F0] hover:border-[#CBD5E1] hover:bg-white'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0 flex-1 mr-2">
+                        <div className={`p-2 rounded-lg border shrink-0 ${
+                          isActive ? 'bg-white border-[#E0E7FF] text-[#4F46E5]' : 'bg-white border-[#E2E8F0] text-[#64748B]'
+                        }`}>
+                          <FileCheck className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className={`text-xs font-bold truncate ${isActive ? 'text-[#111827]' : 'text-[#111827]'}`}>
+                            {res.originalName}
+                          </p>
+                          <p className="text-[10px] text-[#64748B] font-mono flex items-center gap-2 mt-0.5">
+                            <span>{new Date(res.uploadedAt).toLocaleDateString()}</span>
+                            <span>&bull;</span>
+                            <span>{Math.round(res.fileSize / 1024)} KB</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border ${getHealthColor(res.healthScore || 0)}`}>
+                          Score {res.healthScore}
+                        </span>
+                        {res.reviewed && (
+                          <span title="Reviewed & Applied to Profile" className="p-1 rounded-md bg-[#ECFDF5] border border-[#D1FAE5] text-[#10B981]">
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          </span>
+                        )}
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Badge variant="outline" className="text-[10px] font-mono text-purple-400 border-purple-500/30">
-                        Score {res.healthScore}
-                      </Badge>
-                      {res.reviewed && (
-                        <span title="Reviewed & Applied">
-                          <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
-            </CardContent>
+            </div>
           </Card>
         </div>
 
-        {/* Right Column: Extracted Information Review Studio */}
+        {/* Right Column: Document Editor Studio (Col 7) */}
         <div className="lg:col-span-7">
           {!activeResume ? (
-            <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur h-full min-h-[460px] flex items-center justify-center text-center p-8">
+            <Card variant="default" className="h-full min-h-[480px] flex flex-col items-center justify-center text-center p-10 shadow-sm">
               <div className="max-w-md space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-slate-800/80 border border-slate-700 flex items-center justify-center text-slate-400 mx-auto">
-                  <Edit3 className="w-8 h-8" />
+                <div className="w-14 h-14 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-center text-[#64748B] mx-auto shadow-sm">
+                  <Edit3 className="w-7 h-7 text-[#4F46E5]" />
                 </div>
-                <h3 className="text-lg font-bold text-white">No Resume Selected for Review</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Upload a PDF resume or select one from your upload history on the left to inspect extracted information and edit mapping before applying to your profile.
+                <h3 className="text-lg font-bold text-[#111827]">No Document Active in Editor</h3>
+                <p className="text-xs text-[#64748B] leading-relaxed">
+                  Select a resume from your history on the left or upload a new PDF document. The studio will extract your information into fields that you can verify and apply directly to your profile.
                 </p>
               </div>
             </Card>
           ) : (
-            <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur">
-              <CardHeader className="border-b border-slate-800/80 pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <CardTitle className="text-lg font-bold text-white flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-emerald-400" /> Extracted Candidate Data Review
-                    </CardTitle>
-                    <CardDescription>Verify and edit parsed PDF fields before saving</CardDescription>
+            <Card variant="default" className="p-6 shadow-sm">
+              {/* Editor Header Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#F1F5F9]">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 rounded-xl bg-[#EEF2FF] border border-[#E0E7FF] text-[#4F46E5]">
+                    <ShieldCheck className="w-5 h-5" />
                   </div>
-                  <Badge className="bg-purple-500/10 text-purple-400 border border-purple-500/20 text-xs font-mono self-start">
-                    Health Score: {activeResume.healthScore}/100
-                  </Badge>
+                  <div>
+                    <CardTitle className="text-base font-bold text-[#111827] flex items-center gap-2">
+                      Extracted Candidate Token Editor
+                    </CardTitle>
+                    <CardDescription className="text-xs text-[#64748B] font-mono">
+                      Document ID: {activeResume._id.slice(-8)} &bull; {activeResume.originalName}
+                    </CardDescription>
+                  </div>
                 </div>
-              </CardHeader>
+
+                <div className="flex items-center gap-2.5 self-start sm:self-center">
+                  <Badge variant="default" className="text-xs font-mono px-3 py-1 bg-[#F8FAFC] border-[#E2E8F0] text-[#111827] font-bold">
+                    Health: <span className="text-[#4F46E5] ml-1">{activeResume.healthScore}/100</span>
+                  </Badge>
+                  {activeResume.reviewed && (
+                    <Badge variant="success" className="text-xs font-mono px-2.5 py-1">
+                      <CheckCircle2 className="w-3 h-3 mr-1 inline" /> Verified
+                    </Badge>
+                  )}
+                </div>
+              </div>
 
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   saveReviewMutation.mutate();
                 }}
+                className="space-y-6 pt-6"
               >
-                <CardContent className="space-y-4 pt-6">
-                  {saveSuccess && (
-                    <div className="p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-sm flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4" /> Reviewed data successfully saved and applied!
+                {saveSuccess && (
+                  <div className="p-4 rounded-xl bg-[#ECFDF5] border border-[#D1FAE5] text-[#10B981] text-xs font-bold flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-[#10B981] shrink-0" />
+                      <span>Document tokens verified and synced with modular profile!</span>
                     </div>
-                  )}
+                    <Badge variant="success" className="text-[10px] font-mono">
+                      SYNCED
+                    </Badge>
+                  </div>
+                )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="fullName" className="text-xs">Candidate Name</Label>
-                      <Input
-                        id="fullName"
-                        value={reviewForm.fullName}
-                        onChange={(e) => setReviewForm({ ...reviewForm, fullName: e.target.value })}
-                        placeholder="John Doe"
+                {/* Section 1: Contact Identity Tokens */}
+                <div className="space-y-3 p-5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#4F46E5] flex items-center gap-2 border-b border-[#E2E8F0] pb-2">
+                    <User className="w-3.5 h-3.5" /> 01. Contact Identity Tokens
+                  </h4>
+                  <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center pt-1.5">
+                    <div className="shrink-0 flex flex-col items-center gap-1">
+                      <Avatar
+                        src={profileData?.profile?.avatar}
+                        name={reviewForm.fullName || user?.name || 'User'}
+                        sizeClass="w-16 h-16 rounded-xl text-lg shadow-sm border"
                       />
+                      <span className="text-[9px] font-mono text-[#64748B] font-semibold">Avatar Preview</span>
                     </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="email" className="text-xs">Extracted Email</Label>
-                      <Input
-                        id="email"
-                        value={reviewForm.email}
-                        onChange={(e) => setReviewForm({ ...reviewForm, email: e.target.value })}
-                        placeholder="email@domain.com"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="phone" className="text-xs">Extracted Phone</Label>
-                      <Input
-                        id="phone"
-                        value={reviewForm.phone}
-                        onChange={(e) => setReviewForm({ ...reviewForm, phone: e.target.value })}
-                        placeholder="+1 (555) 019-2831"
-                      />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 flex-1 w-full">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="fullName" className="text-xs font-bold text-[#111827]">Candidate Name</Label>
+                        <Input
+                          id="fullName"
+                          value={reviewForm.fullName}
+                          onChange={(e) => setReviewForm({ ...reviewForm, fullName: e.target.value })}
+                          placeholder="John Doe"
+                          className="h-10 text-xs font-semibold"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="email" className="text-xs font-bold text-[#111827]">Extracted Email</Label>
+                        <Input
+                          id="email"
+                          value={reviewForm.email}
+                          onChange={(e) => setReviewForm({ ...reviewForm, email: e.target.value })}
+                          placeholder="email@domain.com"
+                          className="h-10 text-xs font-mono"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="phone" className="text-xs font-bold text-[#111827]">Extracted Phone</Label>
+                        <Input
+                          id="phone"
+                          value={reviewForm.phone}
+                          onChange={(e) => setReviewForm({ ...reviewForm, phone: e.target.value })}
+                          placeholder="+1 (555) 019-2831"
+                          className="h-10 text-xs font-mono"
+                        />
+                      </div>
                     </div>
                   </div>
+                </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="summary" className="text-xs">Extracted Summary / Bio</Label>
+                {/* Section 2: Executive Summary / Bio */}
+                <div className="space-y-3 p-5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#4F46E5] flex items-center gap-2 border-b border-[#E2E8F0] pb-2">
+                    <FileText className="w-3.5 h-3.5" /> 02. Executive Bio &amp; Professional Summary
+                  </h4>
+                  <div className="space-y-1.5 pt-1">
                     <Textarea
                       id="summary"
                       rows={4}
                       value={reviewForm.summary}
                       onChange={(e) => setReviewForm({ ...reviewForm, summary: e.target.value })}
-                      placeholder="Senior Full Stack Software Engineer with expertise in..."
+                      placeholder="Senior Software Engineer with experience in distributed systems..."
+                      className="text-xs leading-relaxed resize-y p-3.5 bg-white border-[#E2E8F0]"
                     />
+                    <p className="text-xs text-[#64748B]">
+                      This summary will automatically become your primary &ldquo;About Me&rdquo; introduction when applied.
+                    </p>
                   </div>
+                </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="skillsStr" className="text-xs">Detected Technical Skills (comma separated)</Label>
+                {/* Section 3: Technical Skills Matrix */}
+                <div className="space-y-3 p-5 rounded-2xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-[#4F46E5] flex items-center gap-2 border-b border-[#E2E8F0] pb-2">
+                    <Cpu className="w-3.5 h-3.5" /> 03. Detected Stack Matrix &amp; Skill Tokens
+                  </h4>
+                  <div className="space-y-3 pt-1">
                     <Input
                       id="skillsStr"
                       value={reviewForm.skillsStr}
                       onChange={(e) => setReviewForm({ ...reviewForm, skillsStr: e.target.value })}
-                      placeholder="React, TypeScript, Node.js, Express, MongoDB"
+                      placeholder="React, TypeScript, Node.js, Express, MongoDB, Docker"
+                      className="h-10 text-xs font-mono"
                     />
-                  </div>
 
-                  <div className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="applyProfile"
-                        checked={reviewForm.applyToProfile}
-                        onChange={(e) => setReviewForm({ ...reviewForm, applyToProfile: e.target.checked })}
-                        className="rounded border-slate-700 bg-slate-900 text-purple-600 focus:ring-purple-500"
-                      />
-                      <Label htmlFor="applyProfile" className="text-xs font-semibold text-white cursor-pointer">
-                        Auto-populate modular profile with these verified skills and summary
-                      </Label>
-                    </div>
-                    <p className="text-[11px] text-slate-400 pl-6">
-                      Checking this box will update your profile summary and add any new skills to your modular competencies list.
+                    {reviewForm.skillsStr.trim() && (
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {reviewForm.skillsStr.split(',').map((skill, idx) => {
+                          const trimmed = skill.trim();
+                          if (!trimmed) return null;
+                          return (
+                            <Badge
+                              key={idx}
+                              variant="secondary"
+                              className="bg-white border-[#E2E8F0] text-[#111827] font-mono text-[10px] px-2.5 py-0.5 font-bold shadow-sm"
+                            >
+                              <Zap className="w-2.5 h-2.5 mr-1 text-[#4F46E5] inline" />
+                              {trimmed}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Section 4: Auto-populate Sync Control */}
+                <div className="p-4 rounded-xl bg-[#EEF2FF] border border-[#E0E7FF] flex items-start gap-3.5">
+                  <input
+                    type="checkbox"
+                    id="applyProfile"
+                    checked={reviewForm.applyToProfile}
+                    onChange={(e) => setReviewForm({ ...reviewForm, applyToProfile: e.target.checked })}
+                    className="mt-0.5 rounded border-[#CBD5E1] text-[#4F46E5] focus:ring-[#4F46E5] h-4 w-4 shrink-0 cursor-pointer"
+                  />
+                  <div className="space-y-1">
+                    <Label htmlFor="applyProfile" className="text-xs font-bold text-[#111827] cursor-pointer flex items-center gap-1.5">
+                      <span>Auto-populate modular profile with verified skills and summary</span>
+                      <Badge variant="default" className="text-[10px] font-semibold px-1.5 py-0">
+                        Recommended
+                      </Badge>
+                    </Label>
+                    <p className="text-xs text-[#64748B] leading-relaxed">
+                      Checking this box will immediately update your central Profile summary and inject any missing technical competencies into your skills section.
                     </p>
                   </div>
-                </CardContent>
+                </div>
 
-                <CardFooter className="border-t border-slate-800/60 pt-4 flex items-center justify-between">
-                  <a
-                    href={activeResume.fileUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white"
-                  >
-                    <Eye className="w-4 h-4" /> View Original PDF File
-                  </a>
+                {/* Footer Bar */}
+                <div className="pt-4 border-t border-[#F1F5F9] flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <p className="text-xs text-[#64748B] flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" /> Inspect every field before final sync
+                  </p>
 
                   <Button
                     type="submit"
-                    disabled={saveReviewMutation.isPending}
-                    className="bg-purple-600 hover:bg-purple-500 text-white font-semibold px-6 shadow-lg shadow-purple-600/20"
+                    variant="default"
+                    isLoading={saveReviewMutation.isPending}
+                    className="w-full sm:w-auto font-bold px-8 h-10 text-xs shadow-sm"
                   >
-                    {saveReviewMutation.isPending ? 'Saving Review...' : 'Save & Apply Review'} <ArrowRight className="w-4 h-4 ml-1.5" />
+                    Save &amp; Apply Review <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
-                </CardFooter>
+                </div>
               </form>
             </Card>
           )}

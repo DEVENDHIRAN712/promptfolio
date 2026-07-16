@@ -1,5 +1,7 @@
+import mongoose from 'mongoose';
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
+import { User } from '../models/User';
 import { Profile } from '../models/Profile';
 import { Experience } from '../models/Experience';
 import { Education } from '../models/Education';
@@ -276,5 +278,129 @@ export const deleteCertificate = async (req: AuthRequest, res: Response): Promis
     res.status(200).json({ message: 'Certificate deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Failed to delete certificate', error: (error as Error).message });
+  }
+};
+
+// ==================== PUBLIC PORTFOLIO & PUBLISHING ENGINE ====================
+
+// PUT /api/profile/publish - Update username, theme, and publishing status
+export const updatePublishSettings = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userId = req.userId;
+    const { username, theme, isPublished } = req.body;
+
+    let updateFields: any = { theme, isPublished };
+
+    if (username !== undefined) {
+      const cleanSlug = username.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-');
+      if (cleanSlug) {
+        // Check if another profile already owns this username
+        const existing = await Profile.findOne({ username: cleanSlug, userId: { $ne: userId } });
+        if (existing) {
+          res.status(400).json({ message: `The username "${cleanSlug}" is already taken.` });
+          return;
+        }
+        updateFields.username = cleanSlug;
+      }
+    }
+
+    const profile = await Profile.findOneAndUpdate(
+      { userId },
+      { $set: updateFields },
+      { new: true, upsert: true }
+    );
+
+    res.status(200).json({
+      message: 'Portfolio publishing settings updated successfully.',
+      profile,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update publish settings.', error: (error as Error).message });
+  }
+};
+
+// GET /api/profile/public/:username - Retrieve full candidate portfolio for public display
+export const getPublicProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const paramVal = req.params.username;
+    const rawParam = Array.isArray(paramVal) ? (paramVal[0] || '') : (paramVal || '');
+    const slug = rawParam.trim().toLowerCase();
+
+    if (!slug) {
+      res.status(400).json({ message: 'Username is required.' });
+      return;
+    }
+
+    // 1. Try finding Profile by exact username
+    let profile = await Profile.findOne({ username: slug });
+    let user = null;
+
+    if (profile) {
+      user = await User.findById(profile.userId);
+    } else {
+      // 2. Try finding User or Profile by ObjectId
+      if (mongoose.Types.ObjectId.isValid(slug)) {
+        profile = await Profile.findOne({ userId: slug }) || await Profile.findById(slug);
+        if (profile) {
+          user = await User.findById(profile.userId);
+        } else {
+          user = await User.findById(slug);
+          if (user) {
+            profile = await Profile.findOne({ userId: user._id });
+          }
+        }
+      }
+
+      // 3. Try finding by GitHub username or matching user name slug
+      if (!profile && !user) {
+        const ghConn = await GitHubConnection.findOne({ username: new RegExp(`^${slug}$`, 'i') });
+        if (ghConn) {
+          user = await User.findById(ghConn.userId);
+          if (user) profile = await Profile.findOne({ userId: user._id });
+        } else {
+          // Look up user whose name sluggifies to slug
+          const allUsers = await User.find({});
+          user = allUsers.find(u => u.name.toLowerCase().replace(/[^a-z0-9]/g, '-') === slug) || null;
+          if (user) profile = await Profile.findOne({ userId: user._id });
+        }
+      }
+    }
+
+    if (!user || !profile) {
+      res.status(404).json({ message: `No public portfolio found for "${slug}".` });
+      return;
+    }
+
+    if (profile.isPublished === false && (!req.userId || req.userId !== user._id.toString())) {
+      res.status(403).json({ message: 'This portfolio is currently private.' });
+      return;
+    }
+
+    const userId = user._id;
+    const experiences = await Experience.find({ userId }).sort({ startDate: -1 });
+    const educations = await Education.find({ userId }).sort({ startDate: -1 });
+    const skills = await Skill.find({ userId });
+    const projects = await Project.find({ userId }).sort({ createdAt: -1 });
+    const certificates = await Certificate.find({ userId }).sort({ issueDate: -1 });
+    const githubConnection = await GitHubConnection.findOne({ userId });
+    const latestResume = await Resume.findOne({ userId }).sort({ uploadedAt: -1 });
+
+    res.status(200).json({
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      profile,
+      experiences,
+      educations,
+      skills,
+      projects,
+      certificates,
+      githubConnection: githubConnection || null,
+      latestResume: latestResume || null,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to retrieve public portfolio.', error: (error as Error).message });
   }
 };

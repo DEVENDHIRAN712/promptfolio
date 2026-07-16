@@ -3,6 +3,8 @@ import { GoogleGenAI } from '@google/genai';
 export class GeminiService {
   private static getClient(): GoogleGenAI {
     const apiKey = process.env.GEMINI_API_KEY;
+
+    console.log("Gemini Key:", apiKey);
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY is not configured in environment variables.');
     }
@@ -93,58 +95,109 @@ export class GeminiService {
     return parsed as T;
   }
 
+  private static readonly DEFAULT_CASCADE = [
+    'gemini-2.0-flash',
+    'gemma-4-31b-it',
+    'gemini-flash-latest',
+    'gemma-4-26b-a4b-it',
+    'gemini-2.0-flash-lite',
+    'gemini-flash-lite-latest',
+  ];
+
   /**
-   * Generate structured JSON using Gemini model
+   * Generate structured JSON using Gemini model with resilient multi-model fallback cascade
    */
   public static async generateJson<T = any>(
     prompt: string,
     requiredKeys: string[] = [],
-    modelName: string = 'gemini-2.5-flash'
+    modelName: string = 'gemini-2.0-flash'
   ): Promise<T> {
     const client = this.getClient();
 
-    return this.retryWithBackoff(async () => {
-      const response = await client.models.generateContent({
-        model: modelName,
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          temperature: 0.4,
-          maxOutputTokens: 4096,
-        },
-      });
+    // Build unique candidate models list, excluding known deprecated 404 models
+    const candidates = Array.from(
+      new Set([modelName, 'gemini-2.0-flash', 'gemma-4-31b-it', 'gemini-flash-latest', 'gemma-4-26b-a4b-it', 'gemini-2.0-flash-lite'])
+    ).filter(m => m !== 'gemini-2.5-flash-lite' && m !== 'gemini-1.5-flash');
 
-      const text = response.text || '';
-      return this.parseAndValidateJson<T>(text, requiredKeys);
-    });
+    let lastError: any = null;
+
+    for (const candidateModel of candidates) {
+      try {
+        console.log(`[GeminiService] Attempting generateJson with model: ${candidateModel}`);
+        const response = await client.models.generateContent({
+          model: candidateModel,
+          contents: prompt,
+          config: {
+            responseMimeType: 'application/json',
+            temperature: 0.4,
+            maxOutputTokens: 4096,
+          },
+        });
+
+        const text = response.text || '';
+        const result = this.parseAndValidateJson<T>(text, requiredKeys);
+        console.log(`[GeminiService] Successfully generated JSON using model: ${candidateModel}`);
+        return result;
+      } catch (error: any) {
+        lastError = error;
+        const errMsg = error?.message || String(error);
+        const status = error?.status || (error?.error?.code ? error.error.code : null);
+
+        console.warn(`[GeminiService] Model "${candidateModel}" failed with status ${status}: ${errMsg.slice(0, 150)}...`);
+
+        // If it's a JSON parse error or rate limit / unavailable / not found, continue to the next model in cascade
+        continue;
+      }
+    }
+
+    throw new Error(
+      `All AI models failed to generate valid structured JSON. Last error: ${lastError?.message || lastError}`
+    );
   }
 
   /**
-   * Generate standard formatted markdown or text
+   * Generate standard formatted markdown or text with resilient multi-model fallback cascade
    */
   public static async generateText(
     prompt: string,
-    modelName: string = 'gemini-2.5-flash',
+    modelName: string = 'gemini-2.0-flash',
     temperature: number = 0.5
   ): Promise<string> {
     const client = this.getClient();
 
-    return this.retryWithBackoff(async () => {
-      const response = await client.models.generateContent({
-        model: modelName,
-        contents: prompt,
-        config: {
-          temperature,
-          maxOutputTokens: 4096,
-        },
-      });
+    const candidates = Array.from(
+      new Set([modelName, 'gemini-2.0-flash', 'gemma-4-31b-it', 'gemini-flash-latest', 'gemma-4-26b-a4b-it'])
+    ).filter(m => m !== 'gemini-2.5-flash-lite' && m !== 'gemini-1.5-flash');
 
-      const text = response.text || '';
-      if (!text.trim()) {
-        throw new Error('AI returned empty content.');
+    let lastError: any = null;
+
+    for (const candidateModel of candidates) {
+      try {
+        console.log(`[GeminiService] Attempting generateText with model: ${candidateModel}`);
+        const response = await client.models.generateContent({
+          model: candidateModel,
+          contents: prompt,
+          config: {
+            temperature,
+            maxOutputTokens: 4096,
+          },
+        });
+
+        const text = response.text || '';
+        if (!text.trim()) {
+          throw new Error('AI returned empty content.');
+        }
+        console.log(`[GeminiService] Successfully generated text using model: ${candidateModel}`);
+        return text.trim();
+      } catch (error: any) {
+        lastError = error;
+        const errMsg = error?.message || String(error);
+        console.warn(`[GeminiService] Model "${candidateModel}" failed: ${errMsg.slice(0, 150)}...`);
+        continue;
       }
-      return text.trim();
-    });
+    }
+
+    throw new Error(`All AI models failed to generate text content. Last error: ${lastError?.message || lastError}`);
   }
 
   /**

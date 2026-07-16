@@ -18,11 +18,20 @@ import {
   createCertificate,
   updateCertificate,
   deleteCertificate,
+  getPublicProfile,
+  updatePublishSettings,
 } from '../controllers/profile.controller';
 
 const router = Router();
 
+// Public Portfolio Route (NO auth required)
+router.get('/public/:username', getPublicProfile);
+
+// Protected Routes below
 router.use(authMiddleware);
+
+// Portfolio Publishing Settings
+router.put('/publish', updatePublishSettings);
 
 // Aggregated profile
 router.get('/all', getCompleteProfile);

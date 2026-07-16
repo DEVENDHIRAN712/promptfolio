@@ -45,11 +45,15 @@ const extractResumeHeuristics = (text: string): IParsedResumeData => {
 
   // Common skills keyword detection
   const techKeywords = [
-    'React', 'TypeScript', 'JavaScript', 'Node.js', 'Express', 'MongoDB', 'PostgreSQL',
+    'React', 'React.js', 'TypeScript', 'JavaScript', 'Node.js', 'Express', 'Express.js', 'MongoDB', 'PostgreSQL',
     'GraphQL', 'Docker', 'AWS', 'Python', 'Tailwind CSS', 'Vite', 'Next.js', 'Redux',
-    'Git', 'CI/CD', 'Jest', 'C++', 'Java', 'Rust', 'Kubernetes', 'Linux'
+    'Git', 'CI/CD', 'Jest', 'C++', 'C#', 'Java', 'Rust', 'Kubernetes', 'Linux'
   ];
-  const detectedSkills = techKeywords.filter(kw => new RegExp(`\\b${kw}\\b`, 'i').test(text));
+
+  const lowerText = text.toLowerCase();
+  const detectedSkills = techKeywords.filter(skill =>
+    lowerText.includes(skill.toLowerCase())
+  );
 
   return {
     fullName: lines[0] || 'Extracted Name',
@@ -104,6 +108,11 @@ export const uploadAndParseResume = async (req: AuthRequest, res: Response): Pro
   }
 };
 
+// Helper to safely escape strings inside RegExp
+function escapeRegExp(str: string) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // PUT /api/resume/save/:id - Review and save edited resume data to profile
 export const saveReviewedResume = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -137,7 +146,7 @@ export const saveReviewedResume = async (req: AuthRequest, res: Response): Promi
       }
       if (Array.isArray(skills)) {
         for (const skillName of skills) {
-          const exists = await Skill.findOne({ userId: req.userId, name: new RegExp(`^${skillName.trim()}$`, 'i') });
+          const exists = await Skill.findOne({ userId: req.userId, name: new RegExp(`^${escapeRegExp(skillName.trim())}$`, 'i') });
           if (!exists) {
             await Skill.create({
               userId: req.userId,
