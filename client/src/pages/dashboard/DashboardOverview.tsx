@@ -23,8 +23,11 @@ import api from '@/lib/axios';
 import { PortfolioPublishingCard } from '@/pages/dashboard/PortfolioPublishingCard';
 import { Skeleton } from '@/components/ui/skeleton';
 import Avatar from '@/components/ui/Avatar';
+import { EditProfileModal } from '@/components/dashboard/EditProfileModal';
 
 export const DashboardOverview: React.FC = () => {
+  const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
+
   const { data, isLoading } = useQuery({
     queryKey: ['completeProfile'],
     queryFn: async () => {
@@ -57,6 +60,13 @@ export const DashboardOverview: React.FC = () => {
 
   return (
     <div className="space-y-8 pb-14">
+      {/* Basic Account/Profile Editing Modal */}
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        profileData={data}
+      />
+
       {/* Welcome Banner */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
@@ -85,12 +95,16 @@ export const DashboardOverview: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-3 shrink-0">
-          <Link to="/dashboard/profile">
-            <Button variant="default" size="lg" className="font-semibold shadow-sm gap-2">
-              <Pencil className="w-4 h-4" />
-              <span>Edit Profile</span>
-            </Button>
-          </Link>
+          <Button
+            type="button"
+            variant="default"
+            size="lg"
+            onClick={() => setIsEditModalOpen(true)}
+            className="font-semibold shadow-sm gap-2"
+          >
+            <Pencil className="w-4 h-4" />
+            <span>Edit Profile</span>
+          </Button>
           <Link to="/dashboard/ai">
             <Button variant="outline" size="lg" className="font-semibold gap-2 border-[#E2E8F0] text-[#111827]">
               <Sparkles className="w-4 h-4 text-[#4F46E5]" />
@@ -105,6 +119,7 @@ export const DashboardOverview: React.FC = () => {
         profile={data?.profile}
         userId={data?.profile?.userId}
         userName={data?.user?.name || data?.profile?.username || 'User'}
+        fullProfileData={data}
       />
 
       {/* Core Metrics Grid */}

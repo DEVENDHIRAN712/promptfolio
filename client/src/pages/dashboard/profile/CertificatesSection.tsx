@@ -106,7 +106,7 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({ certif
             <CardContent className="space-y-4 pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="certTitle" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="certTitle" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <Award className="w-3.5 h-3.5 text-primary" /> Certificate / License Name
                   </Label>
                   <Input
@@ -119,7 +119,7 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({ certif
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="issuer" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="issuer" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <Building className="w-3.5 h-3.5 text-primary" /> Issuing Organization
                   </Label>
                   <Input
@@ -135,7 +135,7 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({ certif
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="issueDate" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="issueDate" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-primary" /> Issue Date
                   </Label>
                   <Input
@@ -148,7 +148,7 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({ certif
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="expiryDate" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="expiryDate" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-primary" /> Expiration Date (Optional)
                   </Label>
                   <Input
@@ -163,7 +163,7 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({ certif
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="credentialId" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="credentialId" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <KeyRound className="w-3.5 h-3.5 text-primary" /> Credential ID / License Number
                   </Label>
                   <Input
@@ -175,7 +175,7 @@ export const CertificatesSection: React.FC<CertificatesSectionProps> = ({ certif
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="credentialUrl" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                  <Label htmlFor="credentialUrl" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold">
                     Verification URL (Credly / Certificate Link)
                   </Label>
                   <Input

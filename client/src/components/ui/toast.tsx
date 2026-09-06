@@ -55,25 +55,25 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className={cn(
-                "pointer-events-auto flex items-start gap-3 p-4 rounded-xl border bg-surface-1 shadow-2xl backdrop-blur-xl text-foreground relative overflow-hidden",
-                t.type === "success" && "border-emerald-500/30 bg-surface-1/90",
-                t.type === "error" && "border-rose-500/30 bg-surface-1/90",
-                t.type === "warning" && "border-amber-500/30 bg-surface-1/90",
-                t.type === "info" && "border-indigo-500/30 bg-surface-1/90"
+                "pointer-events-auto flex items-start gap-3 p-4 rounded-xl border bg-white border-[#E2E8F0] shadow-xl text-[#111827] relative overflow-hidden",
+                t.type === "success" && "border-[#D1FAE5] bg-white",
+                t.type === "error" && "border-[#FEE2E2] bg-white",
+                t.type === "warning" && "border-[#FEF3C7] bg-white",
+                t.type === "info" && "border-[#E0E7FF] bg-white"
               )}
             >
               <div className="shrink-0 mt-0.5">
-                {t.type === "success" && <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
-                {t.type === "error" && <XCircle className="w-5 h-5 text-rose-400" />}
-                {t.type === "warning" && <AlertTriangle className="w-5 h-5 text-amber-400" />}
-                {t.type === "info" && <Info className="w-5 h-5 text-indigo-400" />}
+                {t.type === "success" && <CheckCircle2 className="w-5 h-5 text-[#10B981]" />}
+                {t.type === "error" && <XCircle className="w-5 h-5 text-[#EF4444]" />}
+                {t.type === "warning" && <AlertTriangle className="w-5 h-5 text-[#F59E0B]" />}
+                {t.type === "info" && <Info className="w-5 h-5 text-[#4F46E5]" />}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground tracking-tight">
+                <p className="text-sm font-bold text-[#111827] tracking-tight">
                   {t.title}
                 </p>
                 {t.description && (
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                  <p className="text-xs font-semibold text-[#475569] mt-0.5 leading-relaxed">
                     {t.description}
                   </p>
                 )}
@@ -81,7 +81,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               <button
                 type="button"
                 onClick={() => dismiss(t.id)}
-                className="shrink-0 text-muted-foreground hover:text-foreground rounded-md p-1 transition-colors"
+                className="shrink-0 text-[#64748B] hover:text-[#111827] rounded-md p-1 transition-colors"
               >
                 <X className="w-3.5 h-3.5" />
               </button>

@@ -12,7 +12,7 @@ const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
       <label
         ref={ref}
         className={cn(
-          "text-xs font-semibold uppercase tracking-wider leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground/90 flex items-center gap-1",
+          "text-xs font-bold uppercase tracking-wider leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-slate-800 flex items-center gap-1",
           className
         )}
         {...props}
@@ -20,7 +20,7 @@ const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
         {children}
         {required && <span className="text-rose-500 font-bold">*</span>}
       </label>
-      {subtext && <span className="text-[11px] font-normal text-muted-foreground">{subtext}</span>}
+      {subtext && <span className="text-[11px] font-normal text-slate-600">{subtext}</span>}
     </div>
   )
 )

@@ -87,7 +87,7 @@ export const SkillsSection: React.FC<SkillsSectionProps> = ({ skills }) => {
           className="flex flex-col md:flex-row items-end gap-3"
         >
           <div className="flex-1 space-y-1.5 w-full">
-            <Label htmlFor="skillName" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <Label htmlFor="skillName" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
               <Sparkles className="w-3 h-3 text-primary" /> Skill / Technology Name
             </Label>
             <Input
@@ -101,33 +101,33 @@ export const SkillsSection: React.FC<SkillsSectionProps> = ({ skills }) => {
           </div>
 
           <div className="w-full md:w-44 space-y-1.5">
-            <Label htmlFor="category" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+            <Label htmlFor="category" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold">
               Domain
             </Label>
             <select
               id="category"
               value={formData.category}
               onChange={(e: any) => setFormData({ ...formData, category: e.target.value })}
-              className="flex h-10 w-full rounded-xl border border-border bg-surface-1 px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+              className="flex h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs font-medium text-slate-900 focus:ring-1 focus:ring-primary focus:outline-none"
             >
               {categories.map((c) => (
-                <option key={c} value={c}>{c}</option>
+                <option key={c} value={c} className="bg-white text-slate-900">{c}</option>
               ))}
             </select>
           </div>
 
           <div className="w-full md:w-36 space-y-1.5">
-            <Label htmlFor="proficiency" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+            <Label htmlFor="proficiency" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold">
               Proficiency
             </Label>
             <select
               id="proficiency"
               value={formData.proficiency}
               onChange={(e: any) => setFormData({ ...formData, proficiency: e.target.value })}
-              className="flex h-10 w-full rounded-xl border border-border bg-surface-1 px-3 text-xs font-medium text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+              className="flex h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs font-medium text-slate-900 focus:ring-1 focus:ring-primary focus:outline-none"
             >
-              <option value="Beginner">Beginner</option>
-              <option value="Intermediate">Intermediate</option>
+              <option value="Beginner" className="bg-white text-slate-900">Beginner</option>
+              <option value="Intermediate" className="bg-white text-slate-900">Intermediate</option>
               <option value="Advanced">Advanced</option>
               <option value="Expert">Expert</option>
             </select>

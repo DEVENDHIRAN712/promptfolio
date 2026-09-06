@@ -118,8 +118,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
         <CardContent className="space-y-5 pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 font-mono">
-                <Briefcase className="w-3.5 h-3.5 text-primary" /> Professional Headline / Title
+              <Label htmlFor="title" className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5 font-mono">
+                <Briefcase className="w-3.5 h-3.5 text-[#4F46E5]" /> Professional Headline / Title
               </Label>
               <Input
                 id="title"
@@ -128,14 +128,14 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
                 placeholder="Senior Full Stack Engineer & AI Architect"
                 className="h-11 text-sm font-medium"
               />
-              <p className="text-[11px] text-muted-foreground/80">
+              <p className="text-[11px] text-slate-600 font-medium">
                 Displayed prominently below your name on the hero header.
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location" className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5 font-mono">
-                <MapPin className="w-3.5 h-3.5 text-primary" /> Geographic Location
+              <Label htmlFor="location" className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5 font-mono">
+                <MapPin className="w-3.5 h-3.5 text-[#4F46E5]" /> Geographic Location
               </Label>
               <Input
                 id="location"
@@ -144,7 +144,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
                 placeholder="San Francisco, CA (Remote Friendly)"
                 className="h-11 text-sm font-medium"
               />
-              <p className="text-[11px] text-muted-foreground/80">
+              <p className="text-[11px] text-slate-600 font-medium">
                 City and state/country or remote availability.
               </p>
             </div>
@@ -179,7 +179,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
         </CardHeader>
         <CardContent className="space-y-3 pt-6">
           <div className="space-y-2">
-            <Label htmlFor="bio" className="text-xs font-bold uppercase tracking-wider text-muted-foreground font-mono">
+            <Label htmlFor="bio" className="text-xs font-bold uppercase tracking-wider text-slate-800 font-mono">
               Executive Narrative
             </Label>
             <Textarea
@@ -190,7 +190,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
               placeholder="Full-stack engineer with 6+ years building distributed architectures, React/Next.js single-page applications, and AI integrations. Passionate about high-signal user interfaces and clean domain modeling..."
               className="text-sm font-medium leading-relaxed resize-y p-4"
             />
-            <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
+            <div className="flex items-center justify-between text-[11px] text-slate-600 font-medium pt-1">
               <span>Tip: Keep your bio actionable and quantitative when possible.</span>
               <span className="font-mono">{formData.bio.length} characters</span>
             </div>
@@ -218,8 +218,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
         <CardContent className="space-y-5 pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="space-y-2">
-              <Label htmlFor="linkedin" className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 font-mono">
-                <LinkedinIcon className="w-4 h-4 text-blue-400" /> LinkedIn Profile URL
+              <Label htmlFor="linkedin" className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2 font-mono">
+                <LinkedinIcon className="w-4 h-4 text-[#4F46E5]" /> LinkedIn Profile URL
               </Label>
               <Input
                 id="linkedin"
@@ -234,8 +234,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="github" className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 font-mono">
-                <GithubIcon className="w-4 h-4 text-foreground" /> GitHub Profile URL
+              <Label htmlFor="github" className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2 font-mono">
+                <GithubIcon className="w-4 h-4 text-slate-900" /> GitHub Profile URL
               </Label>
               <Input
                 id="github"
@@ -250,8 +250,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="twitter" className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 font-mono">
-                <TwitterIcon className="w-4 h-4 text-cyan-400" /> Twitter / X Profile URL
+              <Label htmlFor="twitter" className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2 font-mono">
+                <TwitterIcon className="w-4 h-4 text-sky-500" /> Twitter / X Profile URL
               </Label>
               <Input
                 id="twitter"
@@ -266,8 +266,8 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="portfolio" className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 font-mono">
-                <Globe className="w-4 h-4 text-emerald-400" /> Personal Website / Portfolio
+              <Label htmlFor="portfolio" className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2 font-mono">
+                <Globe className="w-4 h-4 text-emerald-500" /> Personal Website / Portfolio
               </Label>
               <Input
                 id="portfolio"

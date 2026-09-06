@@ -20,6 +20,7 @@ import api from '@/lib/axios';
 import { PortfolioThemeType } from '../portfolio/types';
 import { cn } from '@/lib/utils';
 import Avatar from '@/components/ui/Avatar';
+import EditProfileModal from '@/components/dashboard/EditProfileModal';
 
 interface PortfolioPublishingCardProps {
   profile?: {
@@ -30,6 +31,7 @@ interface PortfolioPublishingCardProps {
   };
   userId?: string;
   userName?: string;
+  fullProfileData?: any;
 }
 
 const themeDescriptions: { id: PortfolioThemeType; name: string; desc: string; previewColor: string; accentBadge: string }[] = [
@@ -41,8 +43,9 @@ const themeDescriptions: { id: PortfolioThemeType; name: string; desc: string; p
   { id: 'Modern SaaS', name: 'Modern SaaS', desc: 'Stripe & Linear light mode inspired, subtle borders, crisp feature presentation.', previewColor: 'bg-white border-[#4F46E5]', accentBadge: 'bg-[#EEF2FF] text-[#4F46E5]' },
 ];
 
-export const PortfolioPublishingCard: React.FC<PortfolioPublishingCardProps> = ({ profile, userId, userName }) => {
+export const PortfolioPublishingCard: React.FC<PortfolioPublishingCardProps> = ({ profile, userId, userName, fullProfileData }) => {
   const queryClient = useQueryClient();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const defaultSlug = profile?.username || (userName ? userName.toLowerCase().replace(/[^a-z0-9_-]/g, '-') : userId || 'my-portfolio');
 
   const [usernameInput, setUsernameInput] = useState(defaultSlug);
@@ -93,7 +96,13 @@ export const PortfolioPublishingCard: React.FC<PortfolioPublishingCardProps> = (
   };
 
   return (
-    <Card variant="default" className="border-[#E2E8F0] shadow-sm overflow-hidden">
+    <>
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        profileData={fullProfileData}
+      />
+      <Card variant="default" className="border-[#E2E8F0] shadow-sm overflow-hidden">
       <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#F1F5F9]">
         <div className="flex items-center gap-3.5">
           <div className="relative shrink-0 select-none">
@@ -122,12 +131,16 @@ export const PortfolioPublishingCard: React.FC<PortfolioPublishingCardProps> = (
         </div>
 
         <div className="flex items-center gap-2.5">
-          <Link to="/dashboard/profile">
-            <Button variant="outline" size="sm" className="text-xs font-semibold gap-1.5 shadow-sm border-[#E2E8F0] text-[#111827]">
-              <Pencil className="w-3.5 h-3.5 text-[#4F46E5]" />
-              <span>Edit Profile</span>
-            </Button>
-          </Link>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsEditModalOpen(true)}
+            className="text-xs font-semibold gap-1.5 shadow-sm border-[#E2E8F0] text-[#111827]"
+          >
+            <Pencil className="w-3.5 h-3.5 text-[#4F46E5]" />
+            <span>Edit Profile</span>
+          </Button>
           <a
             href={`/p/${currentSlug}`}
             target="_blank"
@@ -279,6 +292,12 @@ export const PortfolioPublishingCard: React.FC<PortfolioPublishingCardProps> = (
         </div>
       </CardContent>
     </Card>
+    <EditProfileModal
+      isOpen={isEditModalOpen}
+      onClose={() => setIsEditModalOpen(false)}
+      fullProfileData={fullProfileData}
+    />
+    </>
   );
 };
 

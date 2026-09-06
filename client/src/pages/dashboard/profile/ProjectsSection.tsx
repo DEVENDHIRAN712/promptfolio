@@ -135,7 +135,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
             <CardContent className="space-y-4 pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="projTitle" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="projTitle" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-primary" /> Project Title
                   </Label>
                   <Input
@@ -148,7 +148,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="technologies" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="technologies" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <Code2 className="w-3.5 h-3.5 text-primary" /> Technologies (comma separated)
                   </Label>
                   <Input
@@ -163,7 +163,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="liveUrl" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="liveUrl" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-primary" /> Live Demo / Production URL
                   </Label>
                   <Input
@@ -175,7 +175,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="githubUrl" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="githubUrl" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <GithubIcon className="w-3.5 h-3.5 text-primary" /> GitHub Repository URL
                   </Label>
                   <Input
@@ -189,7 +189,7 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ projects }) =>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="description" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                <Label htmlFor="description" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold">
                   Architecture &amp; Key Features Description
                 </Label>
                 <Textarea

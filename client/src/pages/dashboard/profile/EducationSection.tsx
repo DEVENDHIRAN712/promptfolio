@@ -122,7 +122,7 @@ export const EducationSection: React.FC<EducationSectionProps> = ({ educations }
             <CardContent className="space-y-4 pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="institution" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="institution" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <Building className="w-3.5 h-3.5 text-primary" /> Institution / University
                   </Label>
                   <Input
@@ -135,7 +135,7 @@ export const EducationSection: React.FC<EducationSectionProps> = ({ educations }
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="degree" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="degree" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <Award className="w-3.5 h-3.5 text-primary" /> Degree / Qualification
                   </Label>
                   <Input
@@ -151,7 +151,7 @@ export const EducationSection: React.FC<EducationSectionProps> = ({ educations }
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="fieldOfStudy" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                  <Label htmlFor="fieldOfStudy" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold">
                     Major / Field of Study
                   </Label>
                   <Input
@@ -163,7 +163,7 @@ export const EducationSection: React.FC<EducationSectionProps> = ({ educations }
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="startDate" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="startDate" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-primary" /> Start Date
                   </Label>
                   <Input
@@ -176,7 +176,7 @@ export const EducationSection: React.FC<EducationSectionProps> = ({ educations }
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="endDate" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                  <Label htmlFor="endDate" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold flex items-center gap-1.5">
                     <Clock className="w-3.5 h-3.5 text-primary" /> End Date ({formData.current ? 'Present' : 'Select'})
                   </Label>
                   <Input
@@ -199,12 +199,12 @@ export const EducationSection: React.FC<EducationSectionProps> = ({ educations }
                     onChange={(e) => setFormData({ ...formData, current: e.target.checked, endDate: '' })}
                     className="rounded border-border bg-surface-2 text-primary focus:ring-primary h-4 w-4"
                   />
-                  <Label htmlFor="currentEdu" className="text-xs font-semibold text-foreground cursor-pointer">
+                  <Label htmlFor="currentEdu" className="text-xs font-semibold text-slate-900 cursor-pointer">
                     I am currently enrolled at this institution
                   </Label>
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="grade" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                  <Label htmlFor="grade" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold">
                     Grade / GPA / Honours (Optional)
                   </Label>
                   <Input
@@ -218,7 +218,7 @@ export const EducationSection: React.FC<EducationSectionProps> = ({ educations }
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="description" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                <Label htmlFor="description" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 font-bold">
                   Societies, Publications &amp; Academic Achievements
                 </Label>
                 <Textarea

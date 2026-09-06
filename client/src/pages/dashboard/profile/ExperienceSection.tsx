@@ -146,8 +146,8 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experience
             <CardContent className="space-y-4 pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="company" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-primary" /> Company Name
+                  <Label htmlFor="company" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-[#4F46E5]" /> Company Name
                   </Label>
                   <Input
                     id="company"
@@ -159,8 +159,8 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experience
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="role" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Briefcase className="w-3.5 h-3.5 text-primary" /> Job Title / Role
+                  <Label htmlFor="role" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                    <Briefcase className="w-3.5 h-3.5 text-[#4F46E5]" /> Job Title / Role
                   </Label>
                   <Input
                     id="role"
@@ -175,8 +175,8 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experience
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="location" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-primary" /> Location
+                  <Label htmlFor="location" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-[#4F46E5]" /> Location
                   </Label>
                   <Input
                     id="location"
@@ -187,8 +187,8 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experience
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="startDate" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-primary" /> Start Date
+                  <Label htmlFor="startDate" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-[#4F46E5]" /> Start Date
                   </Label>
                   <Input
                     id="startDate"
@@ -200,8 +200,8 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experience
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="endDate" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-primary" /> End Date ({formData.current ? 'Present' : 'Select'})
+                  <Label htmlFor="endDate" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-[#4F46E5]" /> End Date ({formData.current ? 'Present' : 'Select'})
                   </Label>
                   <Input
                     id="endDate"
@@ -214,21 +214,21 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experience
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-surface-1/80 border border-border">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-slate-50 border border-[#E2E8F0]">
                 <input
                   type="checkbox"
                   id="current"
                   checked={formData.current}
                   onChange={(e) => setFormData({ ...formData, current: e.target.checked, endDate: '' })}
-                  className="rounded border-border bg-surface-2 text-primary focus:ring-primary h-4 w-4"
+                  className="rounded border-[#E2E8F0] bg-white text-[#4F46E5] focus:ring-[#4F46E5] h-4 w-4"
                 />
-                <Label htmlFor="current" className="text-xs font-semibold text-foreground cursor-pointer">
+                <Label htmlFor="current" className="text-xs font-semibold text-slate-900 cursor-pointer">
                   I currently work at this role (Mark as active / Present position)
                 </Label>
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="description" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                <Label htmlFor="description" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800">
                   Responsibilities &amp; Measurable Achievements
                 </Label>
                 <Textarea
@@ -242,8 +242,8 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experience
               </div>
 
               <div className="space-y-1.5">
-                <Label htmlFor="technologies" className="text-xs font-mono font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                  <Code2 className="w-3.5 h-3.5 text-primary" /> Technologies Used (comma separated)
+                <Label htmlFor="technologies" className="text-xs font-mono font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                  <Code2 className="w-3.5 h-3.5 text-[#4F46E5]" /> Technologies Used (comma separated)
                 </Label>
                 <Input
                   id="technologies"

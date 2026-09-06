@@ -83,17 +83,52 @@ export const getCompleteProfile = async (req: AuthRequest, res: Response): Promi
 export const updateAbout = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const userId = req.userId;
-    const { title, bio, location, avatar, socialLinks } = req.body;
+    const { name, email, title, bio, location, avatar, socialLinks } = req.body;
+
+    let updatedUser = null;
+
+    // Update User name and/or email if provided
+    if (name !== undefined || email !== undefined) {
+      const userUpdate: any = {};
+      if (name && typeof name === 'string' && name.trim().length >= 2) {
+        userUpdate.name = name.trim();
+      }
+
+      if (email && typeof email === 'string' && email.includes('@')) {
+        const normalizedEmail = email.trim().toLowerCase();
+        const existingUser = await User.findOne({ email: normalizedEmail, _id: { $ne: userId } });
+        if (existingUser) {
+          res.status(400).json({ message: 'Email address is already in use by another account.' });
+          return;
+        }
+        userUpdate.email = normalizedEmail;
+      }
+
+      if (Object.keys(userUpdate).length > 0) {
+        updatedUser = await User.findByIdAndUpdate(userId, { $set: userUpdate }, { new: true }).select('-password');
+      }
+    }
+
+    const updateFields: any = {};
+    if (title !== undefined) updateFields.title = title;
+    if (bio !== undefined) updateFields.bio = bio;
+    if (location !== undefined) updateFields.location = location;
+    if (avatar !== undefined) updateFields.avatar = avatar;
+    if (socialLinks !== undefined) updateFields.socialLinks = socialLinks;
 
     const profile = await Profile.findOneAndUpdate(
       { userId },
-      { $set: { title, bio, location, avatar, socialLinks } },
+      { $set: updateFields },
       { new: true, upsert: true }
     );
 
     await calculateCompletion(userId!);
 
-    res.status(200).json({ message: 'Profile updated successfully', profile });
+    res.status(200).json({
+      message: 'Profile updated successfully',
+      profile,
+      user: updatedUser || undefined,
+    });
   } catch (error) {
     res.status(500).json({ message: 'Failed to update about section.', error: (error as Error).message });
   }
