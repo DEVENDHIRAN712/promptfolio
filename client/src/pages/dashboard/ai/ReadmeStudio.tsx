@@ -102,11 +102,11 @@ export const ReadmeStudio: React.FC = () => {
                 id="projectSelect"
                 value={selectedProjectId}
                 onChange={(e) => handleProjectSelect(e.target.value)}
-                className="flex h-10 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 text-sm text-slate-100 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-semibold"
+                className="flex h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-semibold"
               >
-                <option value="" className="bg-slate-900 text-slate-100">-- Or enter custom project details below --</option>
+                <option value="" className="bg-white text-slate-900">-- Or enter custom project details below --</option>
                 {Array.isArray(projects) && projects.map((p: any) => (
-                  <option key={p._id} value={p._id} className="bg-slate-900 text-slate-100">{p.title}</option>
+                  <option key={p._id} value={p._id} className="bg-white text-slate-900">{p.title}</option>
                 ))}
               </select>
             </div>
@@ -120,7 +120,7 @@ export const ReadmeStudio: React.FC = () => {
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 placeholder="My Awesome App"
-                className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-semibold"
+                className="bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-semibold"
               />
             </div>
           </div>
@@ -134,7 +134,7 @@ export const ReadmeStudio: React.FC = () => {
               value={technologies}
               onChange={(e) => setTechnologies(e.target.value)}
               placeholder="React 19, TypeScript, Node.js, MongoDB"
-              className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-mono text-xs"
+              className="bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-mono text-xs"
             />
           </div>
 
@@ -148,7 +148,7 @@ export const ReadmeStudio: React.FC = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What does this application do? Why did you engineer it?"
-              className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-xs font-mono"
+              className="bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-xs font-mono"
             />
           </div>
 

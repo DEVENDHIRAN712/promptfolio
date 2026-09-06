@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Palette,
-  Eye
+  Eye,
+  Pencil
 } from 'lucide-react';
 import api from '@/lib/axios';
 import { PortfolioThemeType } from '../portfolio/types';
@@ -120,6 +122,12 @@ export const PortfolioPublishingCard: React.FC<PortfolioPublishingCardProps> = (
         </div>
 
         <div className="flex items-center gap-2.5">
+          <Link to="/dashboard/profile">
+            <Button variant="outline" size="sm" className="text-xs font-semibold gap-1.5 shadow-sm border-[#E2E8F0] text-[#111827]">
+              <Pencil className="w-3.5 h-3.5 text-[#4F46E5]" />
+              <span>Edit Profile</span>
+            </Button>
+          </Link>
           <a
             href={`/p/${currentSlug}`}
             target="_blank"

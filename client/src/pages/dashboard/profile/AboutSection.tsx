@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { User, MapPin, Briefcase, Link as LinkIcon, CheckCircle2, AlertCircle, Sparkles, Globe, Image as ImageIcon, Share2, Code2, MessageSquare } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -39,6 +39,23 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ profile }) => {
       portfolio: profile?.socialLinks?.portfolio || '',
     },
   });
+
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        title: profile.title || '',
+        bio: profile.bio || '',
+        location: profile.location || '',
+        avatar: profile.avatar || '',
+        socialLinks: {
+          linkedin: profile.socialLinks?.linkedin || '',
+          github: profile.socialLinks?.github || '',
+          twitter: profile.socialLinks?.twitter || '',
+          portfolio: profile.socialLinks?.portfolio || '',
+        },
+      });
+    }
+  }, [profile]);
 
   const [successMessage, setSuccessMessage] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

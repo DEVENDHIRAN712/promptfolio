@@ -13,7 +13,8 @@ import {
   UserCheck,
   Activity,
   Globe,
-  Plus
+  Plus,
+  Pencil
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -85,9 +86,9 @@ export const DashboardOverview: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-3 shrink-0">
           <Link to="/dashboard/profile">
-            <Button variant="default" size="lg" className="font-semibold shadow-sm">
-              <span>Update Profile</span>
-              <ArrowRight className="w-4 h-4 ml-1.5" />
+            <Button variant="default" size="lg" className="font-semibold shadow-sm gap-2">
+              <Pencil className="w-4 h-4" />
+              <span>Edit Profile</span>
             </Button>
           </Link>
           <Link to="/dashboard/ai">

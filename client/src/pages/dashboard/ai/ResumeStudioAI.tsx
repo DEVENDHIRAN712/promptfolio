@@ -68,11 +68,11 @@ export const ResumeStudioAI: React.FC = () => {
                 id="styleSelector"
                 value={style}
                 onChange={(e: any) => setStyle(e.target.value)}
-                className="flex h-10 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 text-sm text-slate-100 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-semibold"
+                className="flex h-10 w-full rounded-lg border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-semibold"
               >
-                <option value="ATS" className="bg-slate-900 text-slate-100">ATS (Applicant Tracking System Optimized)</option>
-                <option value="Modern" className="bg-slate-900 text-slate-100">Modern (Architectural &amp; Leadership Focus)</option>
-                <option value="Minimal" className="bg-slate-900 text-slate-100">Minimal (High-Signal 1-Page Executive)</option>
+                <option value="ATS" className="bg-white text-slate-900">ATS (Applicant Tracking System Optimized)</option>
+                <option value="Modern" className="bg-white text-slate-900">Modern (Architectural &amp; Leadership Focus)</option>
+                <option value="Minimal" className="bg-white text-slate-900">Minimal (High-Signal 1-Page Executive)</option>
               </select>
             </div>
 
@@ -85,7 +85,7 @@ export const ResumeStudioAI: React.FC = () => {
                 value={jobTitle}
                 onChange={(e) => setJobTitle(e.target.value)}
                 placeholder="Senior Backend Engineer"
-                className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-semibold"
+                className="bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-semibold"
               />
             </div>
 
@@ -98,7 +98,7 @@ export const ResumeStudioAI: React.FC = () => {
                 value={targetCompany}
                 onChange={(e) => setTargetCompany(e.target.value)}
                 placeholder="Fintech Startup / Fortune 500"
-                className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-semibold"
+                className="bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-semibold"
               />
             </div>
           </div>
@@ -113,7 +113,7 @@ export const ResumeStudioAI: React.FC = () => {
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
               placeholder="Paste the full job description or technical requirements here to calculate exact ATS Keyword Match..."
-              className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-xs leading-relaxed font-mono"
+              className="bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-xs leading-relaxed font-mono"
             />
           </div>
 

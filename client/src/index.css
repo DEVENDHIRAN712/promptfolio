@@ -201,30 +201,4 @@
   animation: pulse-subtle 3s infinite ease-in-out;
 }
 
-/* AI Studio & Dark Form Control Text Contrast Safeguards */
-.bg-slate-950 input,
-.bg-slate-950 textarea,
-.bg-slate-950 select,
-.bg-slate-900 input,
-.bg-slate-900 textarea,
-.bg-slate-900 select,
-input.bg-slate-950,
-input.bg-slate-950\/80,
-textarea.bg-slate-950,
-textarea.bg-slate-950\/80,
-select.bg-slate-950 {
-  color: #F1F5F9 !important;
-}
-
-input.bg-slate-950::placeholder,
-input.bg-slate-950\/80::placeholder,
-textarea.bg-slate-950::placeholder,
-textarea.bg-slate-950\/80::placeholder {
-  color: #94A3B8 !important;
-}
-
-select option {
-  background-color: #0F172A !important;
-  color: #F1F5F9 !important;
-}
 
