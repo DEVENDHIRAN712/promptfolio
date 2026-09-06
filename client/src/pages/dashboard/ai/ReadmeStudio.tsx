@@ -24,7 +24,7 @@ export const ReadmeStudio: React.FC = () => {
     queryKey: ['projectsListAI'],
     queryFn: async () => {
       const res = await api.get('/profile/all');
-      return res.data.data?.projects || [];
+      return res.data.projects || res.data.data?.projects || [];
     },
   });
 
@@ -62,7 +62,7 @@ export const ReadmeStudio: React.FC = () => {
   const handleSaveToProject = async () => {
     if (!selectedProjectId || !generatedReadme?.markdown) return;
     try {
-      await api.put(`/profile/projects/${selectedProjectId}`, {
+      await api.put(`/profile/project/${selectedProjectId}`, {
         description: generatedReadme.tagline || description,
       });
       setSaved(true);
@@ -102,11 +102,11 @@ export const ReadmeStudio: React.FC = () => {
                 id="projectSelect"
                 value={selectedProjectId}
                 onChange={(e) => handleProjectSelect(e.target.value)}
-                className="flex h-10 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 text-sm text-slate-100 focus:ring-1 focus:ring-amber-500"
+                className="flex h-10 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 text-sm text-slate-100 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-semibold"
               >
-                <option value="">-- Or enter custom project details below --</option>
+                <option value="" className="bg-slate-900 text-slate-100">-- Or enter custom project details below --</option>
                 {Array.isArray(projects) && projects.map((p: any) => (
-                  <option key={p._id} value={p._id}>{p.title}</option>
+                  <option key={p._id} value={p._id} className="bg-slate-900 text-slate-100">{p.title}</option>
                 ))}
               </select>
             </div>
@@ -120,7 +120,7 @@ export const ReadmeStudio: React.FC = () => {
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
                 placeholder="My Awesome App"
-                className="bg-slate-950/80 border-slate-800 font-semibold"
+                className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-semibold"
               />
             </div>
           </div>
@@ -134,7 +134,7 @@ export const ReadmeStudio: React.FC = () => {
               value={technologies}
               onChange={(e) => setTechnologies(e.target.value)}
               placeholder="React 19, TypeScript, Node.js, MongoDB"
-              className="bg-slate-950/80 border-slate-800 font-mono text-xs"
+              className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 font-mono text-xs"
             />
           </div>
 
@@ -148,7 +148,7 @@ export const ReadmeStudio: React.FC = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="What does this application do? Why did you engineer it?"
-              className="bg-slate-950/80 border-slate-800 text-xs font-mono"
+              className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-amber-500 focus:ring-1 focus:ring-amber-500 text-xs font-mono"
             />
           </div>
 
@@ -220,11 +220,22 @@ export const ReadmeStudio: React.FC = () => {
         <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur shadow-2xl">
           <CardHeader className="border-b border-slate-800/80 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
-                <Terminal className="w-5 h-5 text-amber-400" /> README.md &minus; {generatedReadme.projectTitle || projectName}
-              </CardTitle>
-              <CardDescription className="text-xs">
-                {generatedReadme.tagline || 'Ready to commit to root folder'}
+              <div className="flex flex-wrap items-center gap-2">
+                <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
+                  <Terminal className="w-5 h-5 text-amber-400" /> README.md &minus; {generatedReadme.projectTitle || projectName}
+                </CardTitle>
+                {generatedReadme.repoEvidence?.isGitHubRepo ? (
+                  <Badge className="bg-amber-500/15 text-amber-400 border border-amber-500/30 text-xs font-mono">
+                    GitHub Repo Evidence Active
+                  </Badge>
+                ) : (
+                  <Badge className="bg-slate-800 text-slate-400 border border-slate-700 text-xs font-mono">
+                    Manual Project Input
+                  </Badge>
+                )}
+              </div>
+              <CardDescription className="text-xs pt-1">
+                {generatedReadme.repoEvidence?.evidenceMessage || generatedReadme.tagline || 'Ready to commit to root folder'}
               </CardDescription>
             </div>
 

@@ -30,8 +30,8 @@ export const generateResume = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    const { style, jobTitle, targetCompany } = req.body;
-    const resume = await AiService.generateResume(userId, style || 'ATS', jobTitle, targetCompany);
+    const { style, jobTitle, targetCompany, jobDescription } = req.body;
+    const resume = await AiService.generateResume(userId, style || 'ATS', jobTitle, targetCompany, jobDescription);
     res.status(200).json({ success: true, resume });
   } catch (error: any) {
     console.error('[AI Controller] generateResume Error:', error);

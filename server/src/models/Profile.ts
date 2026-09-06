@@ -7,7 +7,7 @@ export interface ISocialLinks {
   portfolio?: string;
 }
 
-export type PortfolioThemeType = 'Apple' | 'Glass' | 'Minimal' | 'Cyberpunk' | 'Developer Terminal' | 'Modern SaaS';
+export type PortfolioThemeType = 'Apple' | 'Glass' | 'Minimal' | 'Cyberpunk' | 'Developer Terminal' | 'Modern SaaS' | 'Neo Brutalist' | 'Aurora Prism' | 'Creative Studio' | 'Architect Grid';
 
 export interface IProfile extends Document {
   userId: mongoose.Types.ObjectId;
@@ -50,19 +50,19 @@ const ProfileSchema: Schema<IProfile> = new Schema(
     },
     title: {
       type: String,
-      default: 'Full Stack Software Engineer',
+      default: '',
     },
     bio: {
       type: String,
-      default: 'Passionate software engineer building AI-powered web applications and modern digital experiences.',
+      default: '',
     },
     avatar: {
       type: String,
-      default: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+      default: '',
     },
     location: {
       type: String,
-      default: 'San Francisco, CA',
+      default: '',
     },
     socialLinks: {
       type: SocialLinksSchema,
@@ -70,16 +70,16 @@ const ProfileSchema: Schema<IProfile> = new Schema(
     },
     completionPercentage: {
       type: Number,
-      default: 25,
+      default: 0,
     },
     aiStatus: {
       type: String,
       enum: ['idle', 'analyzing', 'optimized', 'needs_improvement'],
-      default: 'optimized',
+      default: 'idle',
     },
     theme: {
       type: String,
-      enum: ['Apple', 'Glass', 'Minimal', 'Cyberpunk', 'Developer Terminal', 'Modern SaaS'],
+      enum: ['Apple', 'Glass', 'Minimal', 'Cyberpunk', 'Developer Terminal', 'Modern SaaS', 'Neo Brutalist', 'Aurora Prism', 'Creative Studio', 'Architect Grid'],
       default: 'Apple',
     },
     isPublished: {

@@ -1,11 +1,10 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import {
-  MapPin, ExternalLink, Globe, Download,
-  Briefcase, GraduationCap, Award, Code, Sparkles, Terminal, Zap
+  MapPin, ExternalLink, Download,
+  Briefcase, GraduationCap, Award, Code, Sparkles, Terminal, Zap, CheckCircle2
 } from 'lucide-react';
 import { IThemeProps } from '../types';
-import { GithubIcon, LinkedinIcon, TwitterIcon } from '../SocialIcons';
+import { GithubIcon, LinkedinIcon } from '../SocialIcons';
 
 export const CyberpunkTheme: React.FC<IThemeProps> = ({ data }) => {
   const { user, profile, experiences, educations, skills, projects, certificates, githubConnection, latestResume } = data;
@@ -18,20 +17,10 @@ export const CyberpunkTheme: React.FC<IThemeProps> = ({ data }) => {
       const start = new Date(exp.startDate);
       const end = exp.current ? new Date() : (exp.endDate ? new Date(exp.endDate) : new Date());
       const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-      totalMonths += isNaN(months) ? 0 : months;
+      totalMonths += isNaN(months) || months < 0 ? 0 : months;
     });
-    const yrs = Math.round((totalMonths / 12) * 10) / 10;
-    return yrs > 0 ? yrs : 1;
+    return Math.round((totalMonths / 12) * 10) / 10;
   }, [experiences]);
-
-  // 2. Mock visitor count
-  const [visitors, setVisitors] = React.useState(3810);
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setVisitors((prev) => prev + Math.floor(Math.random() * 5) + 1);
-    }, 3800);
-    return () => clearInterval(timer);
-  }, []);
 
   const cyberCard = "p-8 bg-black/80 border-2 border-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.35)] relative overflow-hidden group";
 
@@ -64,9 +53,11 @@ export const CyberpunkTheme: React.FC<IThemeProps> = ({ data }) => {
               {user.name}
             </h1>
 
-            <p className="text-xl sm:text-2xl font-bold text-pink-400">
-              &gt; {profile.title || 'FULL STACK CYBER ENGINEER'} _
-            </p>
+            {profile.title && (
+              <p className="text-xl sm:text-2xl font-bold text-pink-400 uppercase">
+                &gt; {profile.title} _
+              </p>
+            )}
 
             {profile.bio && (
               <p className="text-sm text-cyan-200 leading-relaxed font-sans">
@@ -112,15 +103,15 @@ export const CyberpunkTheme: React.FC<IThemeProps> = ({ data }) => {
               </div>
               <div className="border border-cyan-800 p-2 bg-black/40">
                 <span className="block text-slate-400">EXPERIENCE:</span>
-                <span className="block text-white font-bold">{yearsOfExperience} YRS</span>
+                <span className="block text-white font-bold">{experiences?.length || 0} ROLES</span>
               </div>
               <div className="border border-cyan-800 p-2 bg-black/40">
                 <span className="block text-slate-400">SKILLS:</span>
                 <span className="block text-white font-bold">{skills?.length || 0} COMPs</span>
               </div>
               <div className="border border-cyan-800 p-2 bg-black/40">
-                <span className="block text-yellow-400 font-bold">MONITOR_VIEWS:</span>
-                <span className="block text-yellow-300 font-mono">{visitors}</span>
+                <span className="block text-slate-400">CERTIFICATES:</span>
+                <span className="block text-white font-bold">{certificates?.length || 0} CREDs</span>
               </div>
             </div>
           </div>
@@ -150,11 +141,11 @@ export const CyberpunkTheme: React.FC<IThemeProps> = ({ data }) => {
         )}
 
         {/* 3. Experience Timeline */}
-        {experiences && experiences.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-black text-pink-400 uppercase flex items-center gap-3">
-              <Terminal className="w-6 h-6 text-yellow-400" /> // 02. EXPERIENCE LOGS
-            </h2>
+        <div className="space-y-6">
+          <h2 className="text-2xl font-black text-pink-400 uppercase flex items-center gap-3">
+            <Terminal className="w-6 h-6 text-yellow-400" /> // 02. EXPERIENCE LOGS
+          </h2>
+          {experiences && experiences.length > 0 ? (
             <div className="space-y-6">
               {experiences.map((exp) => (
                 <div key={exp._id} className={cyberCard}>
@@ -180,15 +171,19 @@ export const CyberpunkTheme: React.FC<IThemeProps> = ({ data }) => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className={cyberCard}>
+              <p className="text-xs text-cyan-400 font-bold uppercase">// Experience logs empty.</p>
+            </div>
+          )}
+        </div>
 
         {/* 4. Skills Grid */}
-        {skills && skills.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-black text-pink-400 uppercase flex items-center gap-3">
-              <Code className="w-6 h-6 text-yellow-400" /> // 03. CYBER COMPETENCIES
-            </h2>
+        <div className="space-y-6">
+          <h2 className="text-2xl font-black text-pink-400 uppercase flex items-center gap-3">
+            <Code className="w-6 h-6 text-yellow-400" /> // 03. CYBER COMPETENCIES
+          </h2>
+          {skills && skills.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {skills.map((skill) => (
                 <div key={skill._id} className="p-4 bg-black border border-cyan-500 flex items-center justify-between shadow-[0_0_10px_rgba(6,182,212,0.2)]">
@@ -197,15 +192,19 @@ export const CyberpunkTheme: React.FC<IThemeProps> = ({ data }) => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className={cyberCard}>
+              <p className="text-xs text-cyan-400 font-bold uppercase">// Cyber competencies empty.</p>
+            </div>
+          )}
+        </div>
 
         {/* 5. Projects Grid */}
-        {projects && projects.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-black text-pink-400 uppercase flex items-center gap-3">
-              <Sparkles className="w-6 h-6 text-yellow-400" /> // 04. DEPLOYED SYSTEMS
-            </h2>
+        <div className="space-y-6">
+          <h2 className="text-2xl font-black text-pink-400 uppercase flex items-center gap-3">
+            <Sparkles className="w-6 h-6 text-yellow-400" /> // 04. DEPLOYED SYSTEMS
+          </h2>
+          {projects && projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {projects.map((proj) => (
                 <div key={proj._id} className={`${cyberCard} flex flex-col justify-between`}>
@@ -227,14 +226,18 @@ export const CyberpunkTheme: React.FC<IThemeProps> = ({ data }) => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className={cyberCard}>
+              <p className="text-xs text-cyan-400 font-bold uppercase">// Deployed systems empty.</p>
+            </div>
+          )}
+        </div>
 
         {/* 6. Education & Certs */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {educations && educations.length > 0 && (
-            <div className={cyberCard}>
-              <h3 className="text-xl font-black text-pink-400 uppercase mb-4">// 05. ACADEMY RECORDS</h3>
+          <div className={cyberCard}>
+            <h3 className="text-xl font-black text-pink-400 uppercase mb-4">// 05. ACADEMY RECORDS</h3>
+            {educations && educations.length > 0 ? (
               <div className="space-y-4">
                 {educations.map((edu) => (
                   <div key={edu._id} className="border-b border-cyan-900 pb-3 last:border-0">
@@ -244,12 +247,14 @@ export const CyberpunkTheme: React.FC<IThemeProps> = ({ data }) => {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-xs text-cyan-400 font-bold uppercase">// Academy records empty.</p>
+            )}
+          </div>
 
-          {certificates && certificates.length > 0 && (
-            <div className={cyberCard}>
-              <h3 className="text-xl font-black text-pink-400 uppercase mb-4">// 06. CREDENTIAL TOKENS</h3>
+          <div className={cyberCard}>
+            <h3 className="text-xl font-black text-pink-400 uppercase mb-4">// 06. CREDENTIAL TOKENS</h3>
+            {certificates && certificates.length > 0 ? (
               <div className="space-y-3">
                 {certificates.map((cert) => (
                   <div key={cert._id} className="flex items-center justify-between border-b border-cyan-900 pb-3 last:border-0 text-xs">
@@ -261,11 +266,33 @@ export const CyberpunkTheme: React.FC<IThemeProps> = ({ data }) => {
                   </div>
                 ))}
               </div>
-            </div>
+            ) : (
+              <p className="text-xs text-cyan-400 font-bold uppercase">// Credential tokens empty.</p>
+            )}
+          </div>
+        </div>
+
+        {/* 7. GitHub Connection */}
+        <div className={cyberCard}>
+          <h3 className="text-xl font-black text-pink-400 uppercase mb-3 flex items-center justify-between">
+            <span>// 07. GITHUB LINK PROTOCOL</span>
+            {githubConnection && githubConnection.username && (
+              <span className="text-xs text-emerald-400 flex items-center gap-1 font-bold">
+                <CheckCircle2 className="w-3.5 h-3.5" /> [CONNECTED]
+              </span>
+            )}
+          </h3>
+          {githubConnection && githubConnection.username ? (
+            <p className="text-xs text-cyan-200">
+              CONNECTED HANDLE: <strong className="text-white">@{githubConnection.username}</strong>
+              {typeof githubConnection.publicRepos === 'number' && githubConnection.publicRepos > 0 ? ` [${githubConnection.publicRepos} PUBLIC REPOS]` : ''}
+            </p>
+          ) : (
+            <p className="text-xs text-cyan-400 font-bold uppercase">// GitHub profile not connected.</p>
           )}
         </div>
 
-        {/* 7. Footer */}
+        {/* 8. Footer */}
         <footer className="pt-12 pb-20 text-center space-y-6 border-t-2 border-cyan-500">
           <div className="p-8 bg-black border-2 border-pink-500 max-w-xl mx-auto space-y-4 shadow-[0_0_25px_rgba(236,72,153,0.4)]">
             <h3 className="text-2xl font-black text-white uppercase">INITIATE COLLABORATION PROTOCOL</h3>

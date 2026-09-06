@@ -10,15 +10,23 @@ import MinimalTheme from './themes/MinimalTheme';
 import CyberpunkTheme from './themes/CyberpunkTheme';
 import TerminalTheme from './themes/TerminalTheme';
 import ModernSaasTheme from './themes/ModernSaasTheme';
-import { Sparkles, Palette, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
+import NeoBrutalistTheme from './themes/NeoBrutalistTheme';
+import AuroraPrismTheme from './themes/AuroraPrismTheme';
+import CreativeStudioTheme from './themes/CreativeStudioTheme';
+import ArchitectGridTheme from './themes/ArchitectGridTheme';
+import { Sparkles, Palette, AlertCircle, ArrowLeft, Loader2, Info } from 'lucide-react';
 
-const themesList: { id: PortfolioThemeType; label: string; bg: string }[] = [
-  { id: 'Apple', label: 'Apple Pro', bg: 'bg-[#F8FAFC] text-[#111827] border-[#E2E8F0]' },
-  { id: 'Glass', label: 'Executive Glass', bg: 'bg-[#EEF2FF] text-[#4F46E5] border-[#E0E7FF]' },
-  { id: 'Minimal', label: 'Swiss Minimal', bg: 'bg-white text-[#111827] border-[#111827]' },
-  { id: 'Cyberpunk', label: 'Modern Technical', bg: 'bg-[#F8FAFC] text-[#4F46E5] border-[#4F46E5] font-mono font-bold' },
-  { id: 'Developer Terminal', label: 'Dev Terminal', bg: 'bg-[#F1F5F9] text-[#111827] border-[#CBD5E1] font-mono' },
-  { id: 'Modern SaaS', label: 'Modern SaaS', bg: 'bg-[#4F46E5] text-white border-[#4F46E5]' },
+const themesList: { id: PortfolioThemeType; label: string; descriptor: string; bg: string }[] = [
+  { id: 'Apple', label: 'Apple Pro', descriptor: 'Clean • Premium • Product', bg: 'bg-[#111827] text-white border-blue-500' },
+  { id: 'Glass', label: 'Executive Glass', descriptor: 'Elegant • Layered • Modern', bg: 'bg-indigo-950 text-indigo-200 border-indigo-500' },
+  { id: 'Minimal', label: 'Swiss Minimal', descriptor: 'Monochrome • Stark • Clean', bg: 'bg-zinc-900 text-white border-zinc-700' },
+  { id: 'Cyberpunk', label: 'Modern Technical', descriptor: 'Bold • Neon • Cybernetic', bg: 'bg-black text-cyan-400 border-pink-500 font-mono' },
+  { id: 'Developer Terminal', label: 'Dev Terminal', descriptor: 'CLI • Interactive • Bash', bg: 'bg-slate-950 text-emerald-400 border-emerald-500 font-mono' },
+  { id: 'Modern SaaS', label: 'Modern SaaS', descriptor: 'Sleek • Mesh • High-Impact', bg: 'bg-blue-900 text-white border-blue-400' },
+  { id: 'Neo Brutalist', label: 'Neo Brutalist', descriptor: 'Raw • High-Contrast • Stark', bg: 'bg-yellow-300 text-black border-black font-black' },
+  { id: 'Aurora Prism', label: 'Aurora Prism', descriptor: 'Vibrant • Iridescent • Glow', bg: 'bg-slate-900 text-pink-300 border-pink-500' },
+  { id: 'Creative Studio', label: 'Creative Studio', descriptor: 'Gallery • Editorial • Story', bg: 'bg-stone-900 text-amber-300 border-amber-400 font-serif' },
+  { id: 'Architect Grid', label: 'Architect Grid', descriptor: 'Technical • Blueprint • CAD', bg: 'bg-[#0B132B] text-cyan-300 border-cyan-500 font-mono' },
 ];
 
 export const PublicPortfolioPage: React.FC = () => {
@@ -91,11 +99,21 @@ export const PublicPortfolioPage: React.FC = () => {
         return <TerminalTheme data={data} theme="Developer Terminal" />;
       case 'Modern SaaS':
         return <ModernSaasTheme data={data} theme="Modern SaaS" />;
+      case 'Neo Brutalist':
+        return <NeoBrutalistTheme data={data} theme="Neo Brutalist" />;
+      case 'Aurora Prism':
+        return <AuroraPrismTheme data={data} theme="Aurora Prism" />;
+      case 'Creative Studio':
+        return <CreativeStudioTheme data={data} theme="Creative Studio" />;
+      case 'Architect Grid':
+        return <ArchitectGridTheme data={data} theme="Architect Grid" />;
       case 'Apple':
       default:
         return <AppleTheme data={data} theme="Apple" />;
     }
   };
+
+  const activeThemeObj = themesList.find((t) => t.id === currentTheme) || themesList[0];
 
   return (
     <div className="relative">
@@ -106,13 +124,18 @@ export const PublicPortfolioPage: React.FC = () => {
 
       {/* Floating Theme Preview Switcher Bar */}
       {showThemePicker && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 p-2 rounded-2xl bg-white/95 backdrop-blur-md border border-[#E2E8F0] shadow-lg max-w-full overflow-x-auto">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#111827] border-r border-[#E2E8F0] shrink-0">
-            <Palette className="w-4 h-4 text-[#4F46E5]" />
-            <span className="hidden sm:inline">Theme Switcher:</span>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col sm:flex-row items-center gap-2 p-2.5 rounded-2xl bg-slate-900/95 backdrop-blur-xl border border-slate-700/80 shadow-2xl max-w-[95vw] sm:max-w-full overflow-x-auto text-slate-100">
+          <div className="flex items-center gap-2 px-3 py-1 text-xs font-bold shrink-0 border-b sm:border-b-0 sm:border-r border-slate-700 w-full sm:w-auto justify-between sm:justify-start">
+            <div className="flex items-center gap-1.5 text-indigo-400">
+              <Palette className="w-4 h-4" />
+              <span>Theme Switcher</span>
+            </div>
+            <span className="hidden md:inline-block text-[10px] font-mono text-slate-400 px-2 py-0.5 rounded bg-slate-800 border border-slate-700">
+              {activeThemeObj.descriptor}
+            </span>
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 overflow-x-auto py-1 max-w-full no-scrollbar">
             {themesList.map((t) => {
               const isSelected = currentTheme === t.id;
               return (
@@ -120,13 +143,14 @@ export const PublicPortfolioPage: React.FC = () => {
                   key={t.id}
                   onClick={() => setActiveTheme(t.id)}
                   type="button"
+                  title={`${t.label}: ${t.descriptor}`}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center gap-1.5 border ${
                     isSelected
-                      ? `${t.bg} shadow-sm scale-102 border-[#4F46E5]`
-                      : 'bg-[#F8FAFC] text-[#64748B] border-[#E2E8F0] hover:text-[#111827] hover:bg-white'
+                      ? `${t.bg} shadow-md scale-102 border-indigo-400 ring-2 ring-indigo-400/40`
+                      : 'bg-slate-800/80 text-slate-300 border-slate-700 hover:text-white hover:bg-slate-700'
                   }`}
                 >
-                  {isSelected && <Sparkles className="w-3 h-3" />}
+                  {isSelected && <Sparkles className="w-3 h-3 text-amber-300" />}
                   {t.label}
                 </button>
               );
@@ -136,7 +160,7 @@ export const PublicPortfolioPage: React.FC = () => {
           <button
             onClick={() => setShowThemePicker(false)}
             type="button"
-            className="px-2 py-1 text-[10px] uppercase font-bold text-[#64748B] hover:text-[#111827] shrink-0 ml-1"
+            className="px-2.5 py-1 text-[10px] uppercase font-bold text-slate-400 hover:text-white shrink-0 ml-auto sm:ml-1"
             title="Hide Switcher"
           >
             Hide
@@ -149,11 +173,11 @@ export const PublicPortfolioPage: React.FC = () => {
         <button
           onClick={() => setShowThemePicker(true)}
           type="button"
-          className="fixed bottom-6 right-6 z-50 p-3.5 rounded-full bg-[#4F46E5] hover:bg-[#4338CA] text-white shadow-lg transition-transform hover:scale-105 flex items-center gap-2 text-xs font-bold"
+          className="fixed bottom-6 right-6 z-50 p-3.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-2xl transition-transform hover:scale-105 flex items-center gap-2 text-xs font-bold border border-indigo-400/40"
           title="Open Theme Switcher"
         >
           <Palette className="w-4 h-4" />
-          <span className="hidden sm:inline">Change Theme</span>
+          <span className="hidden sm:inline">Change Theme ({themesList.length})</span>
         </button>
       )}
     </div>

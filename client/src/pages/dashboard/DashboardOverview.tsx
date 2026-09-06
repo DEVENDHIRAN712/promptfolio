@@ -66,7 +66,7 @@ export const DashboardOverview: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 flex-1">
           <Avatar
             src={data?.profile?.avatar}
-            name={data?.profile?.fullName || data?.profile?.username || 'User'}
+            name={data?.user?.name || data?.profile?.username || 'User'}
             sizeClass="w-16 h-16 rounded-xl text-xl shrink-0"
           />
           <div className="space-y-1">
@@ -103,7 +103,7 @@ export const DashboardOverview: React.FC = () => {
       <PortfolioPublishingCard
         profile={data?.profile}
         userId={data?.profile?.userId}
-        userName={data?.profile?.fullName || data?.profile?.username || 'User'}
+        userName={data?.user?.name || data?.profile?.username || 'User'}
       />
 
       {/* Core Metrics Grid */}

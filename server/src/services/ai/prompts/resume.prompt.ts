@@ -1,18 +1,27 @@
 export const RESUME_PROMPT_TEMPLATE = `
 You are an expert ATS (Applicant Tracking System) Specialist and Senior Engineering Hiring Manager.
-Your task is to take the candidate's complete profile data and generate a perfectly tailored, high-scoring resume in STRICT JSON format.
+Your task is to take the candidate's complete profile data and generate a tailored, professional resume in STRICT JSON format.
 
 Requested Resume Style: {{style}}
 Target Job Title: {{jobTitle}}
 Target Company / Industry: {{targetCompany}}
+Target Job Description / Requirements:
+{{jobDescription}}
 
 Candidate Profile Data:
 {{profileData}}
 
+CRITICAL GROUNDING & ANTI-HALLUCINATION DIRECTIVES:
+1. You MAY improve grammar, clarity, action verbs, sentence structure, and tailor wording to align with {{jobTitle}}, {{targetCompany}}, and the provided Job Description.
+2. You MUST NOT invent achievements, metrics, technologies, certifications, job experience, employers, dates, responsibilities, or project results.
+3. NEVER fabricate numbers or percentages (such as "reduced latency by 45%", "30% increase", "1.2M users", or "$500K revenue") unless the EXACT number exists in Candidate Profile Data.
+4. If an experience or project has no numerical metric in Candidate Profile Data, describe the technical implementation and outcome qualitatively using clear action verbs.
+5. ATS match score is calculated separately by deterministic application logic. Do NOT generate, guess, or estimate an ATS percentage. Set "estimatedAtsMatchPercentage" to 0 in your JSON output.
+
 Style Guidelines:
-- If Style is 'ATS': Maximize keyword density, use clean standard section headings, quantify every action bullet with clear action verbs and exact outcome metrics. Avoid fluffy adjectives.
-- If Style is 'Modern': Emphasize architectural leadership, system scale, open-source impact, and cross-functional technical collaboration.
-- If Style is 'Minimal': Extremely concise, high-signal, zero filler. Highlight only top 3 career achievements and core competencies.
+- If Style is 'ATS': Maximize keyword density from candidate data, use clean standard section headings, focus on strong action verbs and verified outcomes. Avoid fluffy adjectives.
+- If Style is 'Modern': Emphasize verified architecture, code quality, and technical collaboration.
+- If Style is 'Minimal': Extremely concise, high-signal, zero filler. Highlight candidate's top verified career achievements.
 
 Return ONLY structured JSON adhering exactly to this schema:
 {
@@ -28,36 +37,36 @@ Return ONLY structured JSON adhering exactly to this schema:
       "portfolio": "String"
     }
   },
-  "executiveSummary": "String - 3 to 4 sentences tailored directly to what {{targetCompany}} looks for in a {{jobTitle}}",
+  "executiveSummary": "String - 3 to 4 sentences grounded in candidate profile data, tailored to {{jobTitle}} context",
   "atsScoreOptimization": {
-    "estimatedAtsMatchPercentage": 92,
-    "keyTargetKeywordsIncluded": ["String - e.g. 'React 19', 'System Architecture', 'CI/CD'"],
-    "tailoringNotes": "String - Explanation of what was optimized for this specific job target"
+    "estimatedAtsMatchPercentage": 0,
+    "keyTargetKeywordsIncluded": ["String - Relevant keywords present in candidate profile data matching the target job"],
+    "tailoringNotes": "String - Explanation of how wording was optimized for this job target"
   },
   "skillsSection": {
-    "languagesAndCore": ["String"],
-    "frameworksAndLibraries": ["String"],
-    "cloudAndDevOps": ["String"],
-    "architectureAndMethodologies": ["String"]
+    "languagesAndCore": ["String - Verified languages from profile data"],
+    "frameworksAndLibraries": ["String - Verified frameworks from profile data"],
+    "cloudAndDevOps": ["String - Verified cloud/devops skills from profile data"],
+    "architectureAndMethodologies": ["String - Verified methodologies from profile data"]
   },
   "experience": [
     {
-      "company": "String",
-      "role": "String - Aligned with target role context",
+      "company": "String - Verified company name",
+      "role": "String - Verified role from profile",
       "location": "String",
       "dateRange": "String",
       "bullets": [
-        "String - Strong action verb + exact technical implementation + quantifiable business metric (e.g. 'Architected real-time ingestion pipeline using Node.js and Redis, reducing latency by 45% for 1.2M daily users')"
+        "String - Strong action verb + verified technical implementation + outcome (quantifiable ONLY if present in candidate data)"
       ]
     }
   ],
   "projects": [
     {
-      "name": "String",
+      "name": "String - Verified project title",
       "roleOrContext": "String",
-      "description": "String - 2 sentence punchy overview with tech stack",
-      "keyOutcomeOrMetric": "String",
-      "technologies": ["String"]
+      "description": "String - Grounded overview of tech stack and implementation",
+      "keyOutcomeOrMetric": "String - Verified outcome or metric if present in candidate data",
+      "technologies": ["String - Verified tech stack from profile data"]
     }
   ],
   "education": [

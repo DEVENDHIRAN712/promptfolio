@@ -1,11 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
-  MapPin, ExternalLink, Globe, Download,
-  Briefcase, GraduationCap, Award, Code, Sparkles, ChevronRight
+  MapPin, ExternalLink, Download,
+  Briefcase, GraduationCap, Award, Code, Sparkles, ChevronRight, CheckCircle2
 } from 'lucide-react';
 import { IThemeProps } from '../types';
-import { GithubIcon, LinkedinIcon, TwitterIcon } from '../SocialIcons';
+import { GithubIcon, LinkedinIcon } from '../SocialIcons';
 
 export const GlassTheme: React.FC<IThemeProps> = ({ data }) => {
   const { user, profile, experiences, educations, skills, projects, certificates, githubConnection, latestResume } = data;
@@ -18,20 +18,10 @@ export const GlassTheme: React.FC<IThemeProps> = ({ data }) => {
       const start = new Date(exp.startDate);
       const end = exp.current ? new Date() : (exp.endDate ? new Date(exp.endDate) : new Date());
       const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-      totalMonths += isNaN(months) ? 0 : months;
+      totalMonths += isNaN(months) || months < 0 ? 0 : months;
     });
-    const yrs = Math.round((totalMonths / 12) * 10) / 10;
-    return yrs > 0 ? yrs : 1;
+    return Math.round((totalMonths / 12) * 10) / 10;
   }, [experiences]);
-
-  // 2. Mock visitor count
-  const [visitors, setVisitors] = React.useState(2150);
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setVisitors((prev) => prev + Math.floor(Math.random() * 2) + 1);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, []);
 
   const glassCard = "p-8 rounded-3xl bg-white/[0.04] backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] hover:border-white/20 transition-all";
 
@@ -62,9 +52,11 @@ export const GlassTheme: React.FC<IThemeProps> = ({ data }) => {
               <h1 className="text-4xl sm:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-purple-200 tracking-tight leading-tight">
                 {user.name}
               </h1>
-              <p className="text-xl sm:text-2xl font-semibold text-purple-300">
-                {profile.title || 'Full Stack Software Engineer'}
-              </p>
+              {profile.title && (
+                <p className="text-xl sm:text-2xl font-semibold text-purple-300">
+                  {profile.title}
+                </p>
+              )}
             </div>
 
             {profile.bio && (
@@ -73,15 +65,19 @@ export const GlassTheme: React.FC<IThemeProps> = ({ data }) => {
               </p>
             )}
 
-            <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-slate-400">
-              {profile.location && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4 text-pink-400" /> {profile.location}
-                </span>
-              )}
-              <span>&bull;</span>
-              <span>{yearsOfExperience} Years Exp</span>
-            </div>
+            {(profile.location || (experiences && experiences.length > 0 && yearsOfExperience > 0)) && (
+              <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-slate-400">
+                {profile.location && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4 text-pink-400" /> {profile.location}
+                  </span>
+                )}
+                {profile.location && experiences && experiences.length > 0 && yearsOfExperience > 0 && <span>&bull;</span>}
+                {experiences && experiences.length > 0 && yearsOfExperience > 0 && (
+                  <span>{yearsOfExperience} {yearsOfExperience === 1 ? 'Year' : 'Years'} Exp</span>
+                )}
+              </div>
+            )}
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
               {latestResume?.fileUrl && (
@@ -121,16 +117,16 @@ export const GlassTheme: React.FC<IThemeProps> = ({ data }) => {
                 <span className="block text-[10px] font-mono uppercase tracking-wider text-purple-300">Projects</span>
               </div>
               <div>
-                <span className="block text-2xl font-black text-white">{yearsOfExperience}</span>
-                <span className="block text-[10px] font-mono uppercase tracking-wider text-purple-300">Years Exp</span>
+                <span className="block text-2xl font-black text-white">{experiences?.length || 0}</span>
+                <span className="block text-[10px] font-mono uppercase tracking-wider text-purple-300">Experience Roles</span>
               </div>
               <div>
                 <span className="block text-2xl font-black text-white">{skills?.length || 0}</span>
                 <span className="block text-[10px] font-mono uppercase tracking-wider text-purple-300">Skills Matrix</span>
               </div>
               <div>
-                <span className="block text-2xl font-black text-pink-400 font-mono">{visitors}</span>
-                <span className="block text-[10px] font-mono uppercase tracking-wider text-purple-300">Page Views</span>
+                <span className="block text-2xl font-black text-white">{certificates?.length || 0}</span>
+                <span className="block text-[10px] font-mono uppercase tracking-wider text-purple-300">Certificates</span>
               </div>
             </div>
           </div>
@@ -159,11 +155,11 @@ export const GlassTheme: React.FC<IThemeProps> = ({ data }) => {
         )}
 
         {/* 3. Experience */}
-        {experiences && experiences.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-3 px-2">
-              <Briefcase className="w-6 h-6 text-purple-400" /> Work Experience
-            </h2>
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-3 px-2">
+            <Briefcase className="w-6 h-6 text-purple-400" /> Work Experience
+          </h2>
+          {experiences && experiences.length > 0 ? (
             <div className="space-y-6">
               {experiences.map((exp) => (
                 <motion.div key={exp._id} whileHover={{ scale: 1.01 }} className={glassCard}>
@@ -189,15 +185,19 @@ export const GlassTheme: React.FC<IThemeProps> = ({ data }) => {
                 </motion.div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className={glassCard}>
+              <p className="text-sm text-slate-400 text-center">Experience will appear here when added.</p>
+            </div>
+          )}
+        </div>
 
         {/* 4. Skills Grid */}
-        {skills && skills.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-3 px-2">
-              <Code className="w-6 h-6 text-purple-400" /> Verified Competencies
-            </h2>
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-3 px-2">
+            <Code className="w-6 h-6 text-purple-400" /> Verified Competencies
+          </h2>
+          {skills && skills.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {skills.map((skill) => (
                 <motion.div key={skill._id} whileHover={{ y: -3 }} className="p-4 rounded-2xl bg-white/[0.05] backdrop-blur-xl border border-white/10 flex items-center justify-between">
@@ -210,15 +210,19 @@ export const GlassTheme: React.FC<IThemeProps> = ({ data }) => {
                 </motion.div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className={glassCard}>
+              <p className="text-sm text-slate-400 text-center">Skills will appear here when added.</p>
+            </div>
+          )}
+        </div>
 
         {/* 5. Projects */}
-        {projects && projects.length > 0 && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-3 px-2">
-              <Sparkles className="w-6 h-6 text-purple-400" /> Featured Projects
-            </h2>
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-3 px-2">
+            <Sparkles className="w-6 h-6 text-purple-400" /> Featured Projects
+          </h2>
+          {projects && projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {projects.map((proj) => (
                 <div key={proj._id} className={`${glassCard} flex flex-col justify-between`}>
@@ -240,16 +244,20 @@ export const GlassTheme: React.FC<IThemeProps> = ({ data }) => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className={glassCard}>
+              <p className="text-sm text-slate-400 text-center">Projects will appear here when added.</p>
+            </div>
+          )}
+        </div>
 
         {/* 6. Education & Certs */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {educations && educations.length > 0 && (
-            <div className={glassCard}>
-              <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-                <GraduationCap className="w-5 h-5 text-purple-400" /> Education
-              </h3>
+          <div className={glassCard}>
+            <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
+              <GraduationCap className="w-5 h-5 text-purple-400" /> Education
+            </h3>
+            {educations && educations.length > 0 ? (
               <div className="space-y-4">
                 {educations.map((edu) => (
                   <div key={edu._id} className="border-b border-white/10 pb-3 last:border-0">
@@ -259,14 +267,16 @@ export const GlassTheme: React.FC<IThemeProps> = ({ data }) => {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-xs text-slate-400 text-center py-2">Education will appear here when added.</p>
+            )}
+          </div>
 
-          {certificates && certificates.length > 0 && (
-            <div className={glassCard}>
-              <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-                <Award className="w-5 h-5 text-pink-400" /> Certifications
-              </h3>
+          <div className={glassCard}>
+            <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
+              <Award className="w-5 h-5 text-pink-400" /> Certifications
+            </h3>
+            {certificates && certificates.length > 0 ? (
               <div className="space-y-3">
                 {certificates.map((cert) => (
                   <div key={cert._id} className="flex items-center justify-between border-b border-white/10 pb-3 last:border-0">
@@ -278,11 +288,35 @@ export const GlassTheme: React.FC<IThemeProps> = ({ data }) => {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-xs text-slate-400 text-center py-2">Certificates will appear here when added.</p>
+            )}
+          </div>
         </div>
 
-        {/* 7. Contact & Footer */}
+        {/* 7. GitHub Showcase */}
+        {githubConnection && githubConnection.username ? (
+          <div className={glassCard}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <GithubIcon className="w-5 h-5 text-white" /> Verified GitHub Connection
+              </h3>
+              <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Connected
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-2">
+              Connected GitHub profile: <strong className="text-white">@{githubConnection.username}</strong>
+              {typeof githubConnection.publicRepos === 'number' && githubConnection.publicRepos > 0 ? ` (${githubConnection.publicRepos} public repositories)` : ''}
+            </p>
+          </div>
+        ) : (
+          <div className={`${glassCard} text-center py-6`}>
+            <p className="text-xs text-slate-400 font-medium">GitHub profile not connected.</p>
+          </div>
+        )}
+
+        {/* 8. Contact & Footer */}
         <footer className="pt-12 pb-20 text-center space-y-6">
           <div className={`${glassCard} max-w-2xl mx-auto space-y-4`}>
             <h3 className="text-2xl font-bold text-white">Let&apos;s Build Something Incredible</h3>

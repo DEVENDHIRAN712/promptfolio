@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {
-  MapPin, ExternalLink, Globe, Download,
-  Briefcase, GraduationCap, Award, Code, Terminal as TerminalIcon, ChevronRight
+  MapPin, Download,
+  GraduationCap, Award, Terminal as TerminalIcon, CheckCircle2
 } from 'lucide-react';
 import { IThemeProps } from '../types';
-import { GithubIcon, LinkedinIcon, TwitterIcon } from '../SocialIcons';
+import { GithubIcon, LinkedinIcon } from '../SocialIcons';
 
 export const TerminalTheme: React.FC<IThemeProps> = ({ data }) => {
   const { user, profile, experiences, educations, skills, projects, certificates, githubConnection, latestResume } = data;
@@ -18,22 +18,10 @@ export const TerminalTheme: React.FC<IThemeProps> = ({ data }) => {
       const start = new Date(exp.startDate);
       const end = exp.current ? new Date() : (exp.endDate ? new Date(exp.endDate) : new Date());
       const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-      totalMonths += isNaN(months) ? 0 : months;
+      totalMonths += isNaN(months) || months < 0 ? 0 : months;
     });
-    const yrs = Math.round((totalMonths / 12) * 10) / 10;
-    return yrs > 0 ? yrs : 1;
+    return Math.round((totalMonths / 12) * 10) / 10;
   }, [experiences]);
-
-  // 2. Mock visitor count
-  const [visitors, setVisitors] = React.useState(1850);
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setVisitors((prev) => prev + 1);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const termBorder = "border border-emerald-500/30 bg-slate-950/90 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-emerald-500/5";
 
   return (
     <div className="min-h-screen bg-[#060b0e] text-emerald-400 font-mono antialiased selection:bg-emerald-500 selection:text-black">
@@ -65,9 +53,11 @@ export const TerminalTheme: React.FC<IThemeProps> = ({ data }) => {
               <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
                 {user.name}
               </h1>
-              <p className="text-base sm:text-lg text-emerald-400 font-semibold">
-                {profile.title || 'Full Stack Software Engineer'}
-              </p>
+              {profile.title && (
+                <p className="text-base sm:text-lg text-emerald-400 font-semibold">
+                  {profile.title}
+                </p>
+              )}
               {profile.bio && (
                 <p className="text-sm text-slate-300 leading-relaxed font-sans sm:font-mono">
                   {profile.bio}
@@ -101,15 +91,15 @@ export const TerminalTheme: React.FC<IThemeProps> = ({ data }) => {
                 </div>
                 <div>
                   <span className="block text-slate-500">experience.dat:</span>
-                  <span className="block text-white font-bold">{yearsOfExperience} years</span>
+                  <span className="block text-white font-bold">{experiences?.length || 0} roles</span>
                 </div>
                 <div>
                   <span className="block text-slate-500">skills.db:</span>
                   <span className="block text-white font-bold">{skills?.length || 0} keys</span>
                 </div>
                 <div>
-                  <span className="block text-slate-500">telemetry_views:</span>
-                  <span className="block text-emerald-300 font-mono">{visitors} hits</span>
+                  <span className="block text-slate-500">certificates.crt:</span>
+                  <span className="block text-emerald-300 font-mono">{certificates?.length || 0} keys</span>
                 </div>
               </div>
             </div>
@@ -155,7 +145,7 @@ export const TerminalTheme: React.FC<IThemeProps> = ({ data }) => {
 
               {activeCommand === 'cat about.txt' && (
                 <div className="text-slate-200 whitespace-pre-wrap leading-relaxed font-sans sm:font-mono">
-                  {profile.bio || 'Candidate bio not specified.'}
+                  {profile.bio || 'Candidate bio will appear here when added.'}
                 </div>
               )}
 
@@ -177,7 +167,7 @@ export const TerminalTheme: React.FC<IThemeProps> = ({ data }) => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-slate-500">Directory experience/ is currently empty.</div>
+                    <div className="text-slate-500">Directory experience/ is currently empty. Experience will appear here when added.</div>
                   )}
                 </div>
               )}
@@ -219,7 +209,7 @@ export const TerminalTheme: React.FC<IThemeProps> = ({ data }) => {
                       </div>
                     ))
                   ) : (
-                    <div className="text-slate-500">Directory projects/ is currently empty.</div>
+                    <div className="text-slate-500 col-span-2">Directory projects/ is currently empty. Projects will appear here when added.</div>
                   )}
                 </div>
               )}
@@ -230,27 +220,29 @@ export const TerminalTheme: React.FC<IThemeProps> = ({ data }) => {
           <div className="space-y-12 pt-8 border-t border-slate-900">
             {/* Education & Certs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              {educations && educations.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold text-white uppercase flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-emerald-400" /> $ cat /etc/education.conf
-                  </h3>
-                  {educations.map((edu) => (
+              <div className="space-y-3">
+                <h3 className="text-sm font-bold text-white uppercase flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4 text-emerald-400" /> $ cat /etc/education.conf
+                </h3>
+                {educations && educations.length > 0 ? (
+                  educations.map((edu) => (
                     <div key={edu._id} className="p-4 rounded-lg bg-slate-900/50 border border-slate-800/60 text-xs space-y-1">
                       <strong className="text-white block">{edu.degree}</strong>
                       <span className="text-emerald-400 block">{edu.institution}</span>
                       <span className="text-slate-500 text-[10px]">{edu.startDate} &minus; {edu.current ? 'Present' : edu.endDate || 'Completed'}</span>
                     </div>
-                  ))}
-                </div>
-              )}
+                  ))
+                ) : (
+                  <p className="text-xs text-slate-500 italic">Education will appear here when added.</p>
+                )}
+              </div>
 
-              {certificates && certificates.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold text-white uppercase flex items-center gap-2">
-                    <Award className="w-4 h-4 text-emerald-400" /> $ ls /usr/local/certs/
-                  </h3>
-                  {certificates.map((cert) => (
+              <div className="space-y-3">
+                <h3 className="text-sm font-bold text-white uppercase flex items-center gap-2">
+                  <Award className="w-4 h-4 text-emerald-400" /> $ ls /usr/local/certs/
+                </h3>
+                {certificates && certificates.length > 0 ? (
+                  certificates.map((cert) => (
                     <div key={cert._id} className="p-4 rounded-lg bg-slate-900/50 border border-slate-800/60 text-xs flex justify-between items-center">
                       <div>
                         <strong className="text-white block">{cert.title}</strong>
@@ -258,8 +250,29 @@ export const TerminalTheme: React.FC<IThemeProps> = ({ data }) => {
                       </div>
                       {cert.credentialUrl && <a href={cert.credentialUrl} target="_blank" rel="noreferrer" className="text-emerald-400 hover:underline">Verify</a>}
                     </div>
-                  ))}
+                  ))
+                ) : (
+                  <p className="text-xs text-slate-500 italic">Certificates will appear here when added.</p>
+                )}
+              </div>
+            </div>
+
+            {/* GitHub Status */}
+            <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-800/60 text-xs space-y-1">
+              <h3 className="text-sm font-bold text-white uppercase flex items-center gap-2">
+                $ git status --connection
+              </h3>
+              {githubConnection && githubConnection.username ? (
+                <div className="flex items-center justify-between pt-1">
+                  <span className="text-emerald-400 flex items-center gap-1.5 font-bold">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Connected: @{githubConnection.username}
+                  </span>
+                  {typeof githubConnection.publicRepos === 'number' && (
+                    <span className="text-slate-500">[{githubConnection.publicRepos} public repos]</span>
+                  )}
                 </div>
+              ) : (
+                <p className="text-slate-500 italic pt-1">GitHub profile not connected.</p>
               )}
             </div>
 

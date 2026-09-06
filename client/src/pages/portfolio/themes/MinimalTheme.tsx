@@ -1,13 +1,13 @@
 import React from 'react';
 import {
-  MapPin, ExternalLink, Globe, Download,
-  Briefcase, GraduationCap, Award, Code, ChevronRight
+  MapPin, ExternalLink, Download,
+  Briefcase, GraduationCap, Award, Code
 } from 'lucide-react';
 import { IThemeProps } from '../types';
-import { GithubIcon, LinkedinIcon, TwitterIcon } from '../SocialIcons';
+import { GithubIcon, LinkedinIcon } from '../SocialIcons';
 
 export const MinimalTheme: React.FC<IThemeProps> = ({ data }) => {
-  const { user, profile, experiences, educations, skills, projects, certificates, latestResume } = data;
+  const { user, profile, experiences, educations, skills, projects, certificates, githubConnection, latestResume } = data;
 
   // 1. Calculate Years of Experience
   const yearsOfExperience = React.useMemo(() => {
@@ -17,20 +17,10 @@ export const MinimalTheme: React.FC<IThemeProps> = ({ data }) => {
       const start = new Date(exp.startDate);
       const end = exp.current ? new Date() : (exp.endDate ? new Date(exp.endDate) : new Date());
       const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-      totalMonths += isNaN(months) ? 0 : months;
+      totalMonths += isNaN(months) || months < 0 ? 0 : months;
     });
-    const yrs = Math.round((totalMonths / 12) * 10) / 10;
-    return yrs > 0 ? yrs : 1;
+    return Math.round((totalMonths / 12) * 10) / 10;
   }, [experiences]);
-
-  // 2. Mock visitor count
-  const [visitors, setVisitors] = React.useState(980);
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setVisitors((prev) => prev + 1);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
 
   return (
     <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-mono antialiased selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
@@ -49,9 +39,11 @@ export const MinimalTheme: React.FC<IThemeProps> = ({ data }) => {
             <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-none uppercase">
               {user.name}
             </h1>
-            <p className="text-lg font-bold text-zinc-600 dark:text-zinc-400">
-              {profile.title || 'Full Stack Software Engineer'}
-            </p>
+            {profile.title && (
+              <p className="text-lg font-bold text-zinc-600 dark:text-zinc-400">
+                {profile.title}
+              </p>
+            )}
             {profile.bio && (
               <p className="text-sm font-sans leading-relaxed text-zinc-600 dark:text-zinc-400">
                 {profile.bio}
@@ -76,19 +68,19 @@ export const MinimalTheme: React.FC<IThemeProps> = ({ data }) => {
               {profile.socialLinks?.linkedin && <a href={profile.socialLinks.linkedin} target="_blank" rel="noreferrer" className="underline hover:opacity-75">LinkedIn</a>}
             </div>
 
-            {/* Minimalist Stark Statistics Block */}
+            {/* Minimalist Statistics Block */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-zinc-200 dark:border-zinc-800 text-xs">
               <div>
                 <span className="block font-bold">PROJECTS: {projects?.length || 0}</span>
               </div>
               <div>
-                <span className="block font-bold">EXPERIENCE: {yearsOfExperience} YRS</span>
+                <span className="block font-bold">ROLES: {experiences?.length || 0}</span>
               </div>
               <div>
-                <span className="block font-bold">SKILLS: {skills?.length || 0} TOTAL</span>
+                <span className="block font-bold">SKILLS: {skills?.length || 0}</span>
               </div>
               <div>
-                <span className="block font-bold text-slate-500 dark:text-slate-400">VIEWS: {visitors}</span>
+                <span className="block font-bold">CERTS: {certificates?.length || 0}</span>
               </div>
             </div>
           </div>
@@ -117,12 +109,12 @@ export const MinimalTheme: React.FC<IThemeProps> = ({ data }) => {
         )}
 
         {/* 3. Experience */}
-        {experiences && experiences.length > 0 && (
-          <section className="space-y-6">
-            <h2 className="text-xs uppercase tracking-widest font-black border-b border-zinc-300 dark:border-zinc-800 pb-1 flex items-center justify-between">
-              <span>// 02. EXPERIENCE HISTORY</span>
-              <span>[{experiences.length}]</span>
-            </h2>
+        <section className="space-y-6">
+          <h2 className="text-xs uppercase tracking-widest font-black border-b border-zinc-300 dark:border-zinc-800 pb-1 flex items-center justify-between">
+            <span>// 02. EXPERIENCE HISTORY</span>
+            <span>[{experiences?.length || 0}]</span>
+          </h2>
+          {experiences && experiences.length > 0 ? (
             <div className="space-y-8">
               {experiences.map((exp) => (
                 <div key={exp._id} className="space-y-2 border-l-2 border-zinc-900 dark:border-zinc-100 pl-4">
@@ -143,15 +135,17 @@ export const MinimalTheme: React.FC<IThemeProps> = ({ data }) => {
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <p className="text-xs text-zinc-500 italic">Experience will appear here when added.</p>
+          )}
+        </section>
 
         {/* 4. Skills */}
-        {skills && skills.length > 0 && (
-          <section className="space-y-4">
-            <h2 className="text-xs uppercase tracking-widest font-black border-b border-zinc-300 dark:border-zinc-800 pb-1">
-              // 03. SKILLS MATRIX
-            </h2>
+        <section className="space-y-4">
+          <h2 className="text-xs uppercase tracking-widest font-black border-b border-zinc-300 dark:border-zinc-800 pb-1">
+            // 03. SKILLS MATRIX
+          </h2>
+          {skills && skills.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {skills.map((skill) => (
                 <span key={skill._id} className="px-3 py-1 border border-zinc-900 dark:border-zinc-100 text-xs font-bold uppercase flex items-center gap-1.5">
@@ -159,15 +153,17 @@ export const MinimalTheme: React.FC<IThemeProps> = ({ data }) => {
                 </span>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <p className="text-xs text-zinc-500 italic">Skills will appear here when added.</p>
+          )}
+        </section>
 
         {/* 5. Projects */}
-        {projects && projects.length > 0 && (
-          <section className="space-y-6">
-            <h2 className="text-xs uppercase tracking-widest font-black border-b border-zinc-300 dark:border-zinc-800 pb-1">
-              // 04. CASE STUDIES & PROJECTS
-            </h2>
+        <section className="space-y-6">
+          <h2 className="text-xs uppercase tracking-widest font-black border-b border-zinc-300 dark:border-zinc-800 pb-1">
+            // 04. CASE STUDIES &amp; PROJECTS
+          </h2>
+          {projects && projects.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {projects.map((proj) => (
                 <div key={proj._id} className="p-6 border-2 border-zinc-900 dark:border-zinc-100 flex flex-col justify-between space-y-4">
@@ -189,32 +185,36 @@ export const MinimalTheme: React.FC<IThemeProps> = ({ data }) => {
                 </div>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <p className="text-xs text-zinc-500 italic">Projects will appear here when added.</p>
+          )}
+        </section>
 
         {/* 6. Education & Certs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-          {educations && educations.length > 0 && (
-            <section className="space-y-4">
-              <h3 className="text-xs uppercase tracking-widest font-black border-b border-zinc-300 dark:border-zinc-800 pb-1">
-                // 05. EDUCATION
-              </h3>
-              {educations.map((edu) => (
+          <section className="space-y-4">
+            <h3 className="text-xs uppercase tracking-widest font-black border-b border-zinc-300 dark:border-zinc-800 pb-1">
+              // 05. EDUCATION
+            </h3>
+            {educations && educations.length > 0 ? (
+              educations.map((edu) => (
                 <div key={edu._id} className="space-y-1">
                   <h4 className="font-bold text-sm uppercase">{edu.degree}</h4>
                   <p className="text-xs text-zinc-600 dark:text-zinc-400">{edu.institution}</p>
                   <p className="text-[10px] text-zinc-500">{edu.startDate} &minus; {edu.current ? 'Present' : edu.endDate || 'Completed'}</p>
                 </div>
-              ))}
-            </section>
-          )}
+              ))
+            ) : (
+              <p className="text-xs text-zinc-500 italic">Education will appear here when added.</p>
+            )}
+          </section>
 
-          {certificates && certificates.length > 0 && (
-            <section className="space-y-4">
-              <h3 className="text-xs uppercase tracking-widest font-black border-b border-zinc-300 dark:border-zinc-800 pb-1">
-                // 06. CERTIFICATES
-              </h3>
-              {certificates.map((cert) => (
+          <section className="space-y-4">
+            <h3 className="text-xs uppercase tracking-widest font-black border-b border-zinc-300 dark:border-zinc-800 pb-1">
+              // 06. CERTIFICATES
+            </h3>
+            {certificates && certificates.length > 0 ? (
+              certificates.map((cert) => (
                 <div key={cert._id} className="flex justify-between items-center text-xs">
                   <div>
                     <strong className="block uppercase">{cert.title}</strong>
@@ -222,12 +222,26 @@ export const MinimalTheme: React.FC<IThemeProps> = ({ data }) => {
                   </div>
                   {cert.credentialUrl && <a href={cert.credentialUrl} target="_blank" rel="noreferrer" className="underline">Verify</a>}
                 </div>
-              ))}
-            </section>
-          )}
+              ))
+            ) : (
+              <p className="text-xs text-zinc-500 italic">Certificates will appear here when added.</p>
+            )}
+          </section>
         </div>
 
-        {/* 7. Footer */}
+        {/* 7. GitHub Status */}
+        <section className="space-y-2 border-t border-zinc-200 dark:border-zinc-800 pt-6">
+          <h3 className="text-xs uppercase tracking-widest font-black">// 07. GITHUB CONNECTION</h3>
+          {githubConnection && githubConnection.username ? (
+            <p className="text-xs font-bold">
+              CONNECTED: @{githubConnection.username} {typeof githubConnection.publicRepos === 'number' && `[${githubConnection.publicRepos} PUBLIC REPOS]`}
+            </p>
+          ) : (
+            <p className="text-xs text-zinc-500 italic">GitHub profile not connected.</p>
+          )}
+        </section>
+
+        {/* 8. Footer */}
         <footer className="border-t-2 border-zinc-900 dark:border-zinc-100 pt-8 pb-16 text-center space-y-4">
           <p className="font-bold text-sm uppercase">Direct Contact: <a href={`mailto:${user.email}`} className="underline">{user.email}</a></p>
           <div className="text-[10px] uppercase tracking-widest text-zinc-500">

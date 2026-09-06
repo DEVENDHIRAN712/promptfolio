@@ -3,33 +3,50 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
 import { Profile } from '../models/Profile';
 import { AuthRequest } from '../middleware/auth';
+import { getJwtSecret } from '../config/jwt';
 
 const generateToken = (userId: string): string => {
-  const secret = process.env.JWT_SECRET || 'promptfolio_jwt_secret_key_change_in_prod';
+  const secret = getJwtSecret();
   return jwt.sign({ id: userId }, secret, { expiresIn: '7d' });
 };
 
+// POST /api/auth/register - Direct registration creating user & issuing JWT
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password } = req.body;
 
-    const existingUser = await User.findOne({ email });
+    if (!name || name.trim().length < 2) {
+      res.status(400).json({ message: 'Full name must be at least 2 characters.' });
+      return;
+    }
+
+    if (!email || !email.includes('@')) {
+      res.status(400).json({ message: 'Please provide a valid email address.' });
+      return;
+    }
+
+    if (!password || password.length < 6) {
+      res.status(400).json({ message: 'Password must be at least 6 characters.' });
+      return;
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await User.findOne({ email: normalizedEmail });
     if (existingUser) {
-      res.status(409).json({ message: 'User already exists with this email address.' });
+      res.status(409).json({ message: 'An account with this email address already exists. Please log in.' });
       return;
     }
 
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password,
     });
 
     // Automatically create initial Profile for the new user
     await Profile.create({
       userId: user._id,
-      title: 'Full Stack Software Engineer',
-      bio: 'Ready to build awesome career milestones.',
     });
 
     const token = generateToken(user._id.toString());
@@ -50,11 +67,19 @@ export const register = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+// POST /api/auth/login - Authenticates user & issues JWT
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email }).select('+password');
+    if (!email || !password) {
+      res.status(400).json({ message: 'Email address and password are required.' });
+      return;
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
     if (!user) {
       res.status(401).json({ message: 'Invalid email or password.' });
       return;

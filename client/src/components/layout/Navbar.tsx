@@ -28,7 +28,7 @@ export const Navbar: React.FC = () => {
     });
   };
 
-  const usernameSlug = user?.name ? user.name.toLowerCase().replace(/[^a-z0-9_-]/g, '-') : 'portfolio';
+  const usernameSlug = profileData?.profile?.username || (user?.name ? user.name.toLowerCase().replace(/[^a-z0-9_-]/g, '-') : 'portfolio');
 
   return (
     <header className="h-16 border-b border-[#E2E8F0] bg-white sticky top-0 z-40 px-6 sm:px-8 flex items-center justify-between transition-all duration-150 shadow-sm">
@@ -75,7 +75,7 @@ export const Navbar: React.FC = () => {
 
         <button
           type="button"
-          onClick={() => toast({ title: "Notifications", description: "Your profile completion score increased to 85%.", type: "success" })}
+          onClick={() => toast({ title: "Workspace Status", description: `Your profile completion score is currently ${profileData?.completionPercentage || 0}%.`, type: "info" })}
           className="w-9 h-9 rounded-lg bg-[#F8FAFC] hover:bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-center text-[#64748B] hover:text-[#111827] transition-all relative shadow-sm"
         >
           <Bell className="w-4 h-4" />

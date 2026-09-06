@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User, IUser } from '../models/User';
+import { getJwtSecret } from '../config/jwt';
 
 export interface AuthRequest extends Request {
   user?: IUser;
@@ -16,7 +17,7 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
     }
 
     const token = authHeader.split(' ')[1];
-    const secret = process.env.JWT_SECRET || 'promptfolio_jwt_secret_key_change_in_prod';
+    const secret = getJwtSecret();
 
     const decoded = jwt.verify(token, secret) as { id: string };
     const user = await User.findById(decoded.id);

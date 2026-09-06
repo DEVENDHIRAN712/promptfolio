@@ -1,4 +1,6 @@
 import { GeminiService } from './gemini.service';
+import { AtsService } from '../ats/ats.service';
+import { GithubRepoInspectorService } from '../github/githubRepoInspector.service';
 import { PORTFOLIO_PROMPT_TEMPLATE } from './prompts/portfolio.prompt';
 import { RESUME_PROMPT_TEMPLATE } from './prompts/resume.prompt';
 import { COVER_LETTER_PROMPT_TEMPLATE } from './prompts/cover-letter.prompt';
@@ -53,9 +55,14 @@ export class AiService {
    */
   public static async generatePortfolio(userId: string, focusArea: string = ''): Promise<any> {
     const profileData = await this.getCandidateProfileData(userId);
+    const candidateSkillsStr = Array.isArray(profileData.skills) && profileData.skills.length > 0
+      ? profileData.skills.map((s: any) => s.name).slice(0, 5).join(', ')
+      : '';
+    const derivedFocusArea = focusArea || profileData.profile?.title || candidateSkillsStr || 'Software Engineering';
+
     const prompt = GeminiService.loadPromptTemplate(PORTFOLIO_PROMPT_TEMPLATE, {
       profileData,
-      focusArea: focusArea || 'Full Stack Software Engineering & System Architecture',
+      focusArea: derivedFocusArea,
     });
 
     return GeminiService.generateJson(prompt, ['portfolioTitle', 'heroSection', 'aboutSummary', 'coreCompetencies']);
@@ -67,18 +74,31 @@ export class AiService {
   public static async generateResume(
     userId: string,
     style: 'ATS' | 'Modern' | 'Minimal' = 'ATS',
-    jobTitle: string = 'Senior Software Engineer',
-    targetCompany: string = 'Leading Tech Company'
+    jobTitle: string = '',
+    targetCompany: string = '',
+    jobDescription: string = ''
   ): Promise<any> {
     const profileData = await this.getCandidateProfileData(userId);
+    const derivedJobTitle = jobTitle || profileData.profile?.title || 'Software Engineer';
+    const derivedCompany = targetCompany || 'Target Company';
+
     const prompt = GeminiService.loadPromptTemplate(RESUME_PROMPT_TEMPLATE, {
       style,
-      jobTitle,
-      targetCompany,
+      jobTitle: derivedJobTitle,
+      targetCompany: derivedCompany,
+      jobDescription: jobDescription || 'Standard software engineering position requirements.',
       profileData,
     });
 
-    return GeminiService.generateJson(prompt, ['header', 'executiveSummary', 'skillsSection', 'experience', 'projects']);
+    const resume = await GeminiService.generateJson(prompt, ['header', 'executiveSummary', 'skillsSection', 'experience', 'projects']);
+
+    // Calculate deterministic ATS match percentage using AtsService
+    const atsAnalysis = AtsService.calculateMatch(jobDescription, profileData);
+
+    return {
+      ...resume,
+      atsAnalysis,
+    };
   }
 
   /**
@@ -86,15 +106,18 @@ export class AiService {
    */
   public static async generateCoverLetter(
     userId: string,
-    jobTitle: string,
-    company: string,
-    jobDescription: string
+    jobTitle: string = '',
+    company: string = '',
+    jobDescription: string = ''
   ): Promise<any> {
     const profileData = await this.getCandidateProfileData(userId);
+    const derivedJobTitle = jobTitle || profileData.profile?.title || 'Software Engineer';
+    const derivedCompany = company || 'Target Company';
+
     const prompt = GeminiService.loadPromptTemplate(COVER_LETTER_PROMPT_TEMPLATE, {
-      jobTitle: jobTitle || 'Software Engineer',
-      company: company || 'Tech Corporation',
-      jobDescription: jobDescription || 'Seeking an experienced engineer capable of delivering scalable applications.',
+      jobTitle: derivedJobTitle,
+      company: derivedCompany,
+      jobDescription: jobDescription || 'Standard software engineering position requirements.',
       profileData,
     });
 
@@ -106,13 +129,19 @@ export class AiService {
    */
   public static async generateLinkedIn(
     userId: string,
-    jobTarget: string = 'Staff / Senior Engineer',
-    focusArea: string = 'React, Node.js, AI Systems'
+    jobTarget: string = '',
+    focusArea: string = ''
   ): Promise<any> {
     const profileData = await this.getCandidateProfileData(userId);
+    const candidateSkillsStr = Array.isArray(profileData.skills) && profileData.skills.length > 0
+      ? profileData.skills.map((s: any) => s.name).slice(0, 5).join(', ')
+      : '';
+    const derivedJobTarget = jobTarget || profileData.profile?.title || 'Software Engineer';
+    const derivedFocusArea = focusArea || candidateSkillsStr || 'Software Development';
+
     const prompt = GeminiService.loadPromptTemplate(LINKEDIN_PROMPT_TEMPLATE, {
-      jobTarget,
-      focusArea,
+      jobTarget: derivedJobTarget,
+      focusArea: derivedFocusArea,
       profileData,
     });
 
@@ -130,28 +159,48 @@ export class AiService {
     customTechnologies?: string[]
   ): Promise<any> {
     const profileData = await this.getCandidateProfileData(userId);
-    let projectName = customProjectName || 'Promptfolio-Project';
-    let projectDescription = customDescription || 'Autonomous AI-driven full-stack software application.';
-    let technologies = Array.isArray(customTechnologies) ? customTechnologies.join(', ') : (customTechnologies || 'TypeScript, React, Node.js');
+    let projectName = customProjectName || 'Software-Project';
+    let projectDescription = customDescription || 'Full-stack software application.';
+    let technologies = Array.isArray(customTechnologies) && customTechnologies.length > 0
+      ? customTechnologies.join(', ')
+      : (customTechnologies || (Array.isArray(profileData.skills) && profileData.skills.length > 0 ? profileData.skills.map((s: any) => s.name).slice(0, 5).join(', ') : 'Software Development'));
+
+    let githubUrl = '';
+    let storedReadme = '';
 
     if (projectId) {
       const proj = await Project.findOne({ _id: projectId, userId });
       if (proj) {
         projectName = proj.title || projectName;
         projectDescription = proj.description || projectDescription;
-        technologies = Array.isArray(proj.technologies) ? proj.technologies.join(', ') : technologies;
+        technologies = Array.isArray(proj.technologies) && proj.technologies.length > 0 ? proj.technologies.join(', ') : technologies;
+        githubUrl = proj.githubUrl || '';
+        storedReadme = proj.readme || '';
       }
     }
+
+    // Inspect real GitHub repository evidence if available
+    const repoEvidence = await GithubRepoInspectorService.inspectRepository(
+      profileData.github?.username,
+      githubUrl || customProjectName,
+      storedReadme
+    );
 
     const prompt = GeminiService.loadPromptTemplate(README_PROMPT_TEMPLATE, {
       projectName,
       projectDescription,
       technologies,
       authorName: profileData.user.name,
-      githubUsername: profileData.github?.username || 'engineer',
+      githubUsername: profileData.github?.username || 'developer',
+      repoEvidence,
     });
 
-    return GeminiService.generateJson(prompt, ['projectTitle', 'tagline', 'markdown', 'sections']);
+    const readme = await GeminiService.generateJson(prompt, ['projectTitle', 'tagline', 'markdown', 'sections']);
+
+    return {
+      ...readme,
+      repoEvidence,
+    };
   }
 }
 

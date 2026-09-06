@@ -38,7 +38,7 @@ export const Sidebar: React.FC = () => {
     navigate('/login');
   };
 
-  const usernameSlug = user?.name ? user.name.toLowerCase().replace(/[^a-z0-9_-]/g, '-') : 'portfolio';
+  const usernameSlug = profileData?.profile?.username || (user?.name ? user.name.toLowerCase().replace(/[^a-z0-9_-]/g, '-') : 'portfolio');
 
   const navSections: NavSection[] = [
     {

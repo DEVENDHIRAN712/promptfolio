@@ -66,7 +66,7 @@ export const CoverLetterStudio: React.FC = () => {
                 value={jobTitle}
                 onChange={(e) => setJobTitle(e.target.value)}
                 placeholder="Senior Full Stack Engineer"
-                className="bg-slate-950/80 border-slate-800 font-semibold"
+                className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-semibold"
               />
             </div>
 
@@ -79,7 +79,7 @@ export const CoverLetterStudio: React.FC = () => {
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 placeholder="Vercel / Stripe / Apple"
-                className="bg-slate-950/80 border-slate-800 font-semibold"
+                className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-semibold"
               />
             </div>
           </div>
@@ -94,7 +94,7 @@ export const CoverLetterStudio: React.FC = () => {
               value={jobDescription}
               onChange={(e) => setJobDescription(e.target.value)}
               placeholder="Paste the full job posting requirements or key expectations here..."
-              className="bg-slate-950/80 border-slate-800 text-xs leading-relaxed font-mono"
+              className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-xs leading-relaxed font-mono"
             />
           </div>
 

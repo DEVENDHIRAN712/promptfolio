@@ -10,10 +10,17 @@ Job Description / Requirements:
 Candidate Profile Data:
 {{profileData}}
 
+CRITICAL GROUNDING & ANTI-HALLUCINATION DIRECTIVES:
+1. Use Job Description ONLY to extract key requirements, skills, and expectations for {{jobTitle}} at {{company}}.
+2. Connect extracted requirements ONLY to verified evidence present in Candidate Profile Data.
+3. NEVER fabricate projects, employment, achievements, metrics, technologies, certifications, or leadership experience.
+4. If candidate lacks direct experience in a requested requirement, use honest, professional transferable-skill wording. Do NOT pretend candidate has experience they lack.
+5. NEVER invent unverified company claims (e.g. "Your company is revolutionizing X") unless explicitly stated in the provided Job Description.
+
 Guidelines:
 1. Avoid generic, robotic templates ("I am writing to express my strong interest in...").
-2. Start with an authoritative, engaging hook that immediately proves why the candidate's engineering background directly solves the exact problems mentioned in the Job Description.
-3. In the body, map 2 to 3 specific candidate achievements (from their experience or projects) to the core requirements of {{company}}.
+2. Start with an engaging hook that connects candidate's verified technical experience directly to the role requirements.
+3. In the body, map 2 to 3 verified candidate achievements or skills (from profile data) to the core requirements of {{company}}.
 4. End with a confident, proactive call to action.
 
 Return ONLY structured JSON adhering exactly to this schema:
@@ -26,19 +33,19 @@ Return ONLY structured JSON adhering exactly to this schema:
     "targetJobTitle": "String",
     "date": "String - Current date in nice format"
   },
-  "greeting": "String - e.g. 'Dear Hiring Manager at {{company}},' or specific team mention",
-  "openingHook": "String - Powerful paragraph grabbing attention immediately",
+  "greeting": "String - e.g. 'Dear Hiring Manager at {{company}},'",
+  "openingHook": "String - Grounded paragraph grabbing attention immediately based on verified skills",
   "bodyParagraphs": [
     {
-      "theme": "String - e.g. 'Scaling Distributed Architectures' or 'Frontend Performance Leadership'",
-      "content": "String - Detailed paragraph connecting candidate experience to the job description"
+      "theme": "String - e.g. 'Frontend Architecture' or 'Backend Engineering'",
+      "content": "String - Detailed paragraph connecting verified candidate experience to job requirements"
     }
   ],
   "closingAndCallToAction": "String - Confident concluding paragraph requesting an interview",
   "signOff": "String - e.g. 'Sincerely,\\n\\n[Candidate Name]'",
-  "fullCoverLetterText": "String - Complete, beautifully formatted plain text cover letter ready to copy and paste into application portals",
+  "fullCoverLetterText": "String - Complete, beautifully formatted plain text cover letter ready to copy and paste",
   "alignmentHighlights": [
-    "String - Short note explaining how bullet point X in experience matches requirement Y in JD"
+    "String - Short note explaining how verified candidate experience matches requirement in JD"
   ]
 }
 `;

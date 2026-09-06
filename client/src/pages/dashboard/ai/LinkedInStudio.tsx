@@ -86,7 +86,7 @@ export const LinkedInStudio: React.FC = () => {
                 value={jobTarget}
                 onChange={(e) => setJobTarget(e.target.value)}
                 placeholder="Staff / Senior Engineer"
-                className="bg-slate-950/80 border-slate-800 font-semibold"
+                className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-semibold"
               />
             </div>
 
@@ -99,7 +99,7 @@ export const LinkedInStudio: React.FC = () => {
                 value={focusArea}
                 onChange={(e) => setFocusArea(e.target.value)}
                 placeholder="Distributed AI, React 19, AWS"
-                className="bg-slate-950/80 border-slate-800 font-semibold"
+                className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-semibold"
               />
             </div>
           </div>

@@ -4,7 +4,6 @@ export class GeminiService {
   private static getClient(): GoogleGenAI {
     const apiKey = process.env.GEMINI_API_KEY;
 
-    console.log("Gemini Key:", apiKey);
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY is not configured in environment variables.');
     }
@@ -96,12 +95,9 @@ export class GeminiService {
   }
 
   private static readonly DEFAULT_CASCADE = [
-    'gemini-2.0-flash',
-    'gemma-4-31b-it',
-    'gemini-flash-latest',
-    'gemma-4-26b-a4b-it',
-    'gemini-2.0-flash-lite',
-    'gemini-flash-lite-latest',
+    'gemini-3.5-flash',
+    'gemini-3.1-flash-lite',
+    'gemini-2.5-flash',
   ];
 
   /**
@@ -110,14 +106,14 @@ export class GeminiService {
   public static async generateJson<T = any>(
     prompt: string,
     requiredKeys: string[] = [],
-    modelName: string = 'gemini-2.0-flash'
+    modelName: string = 'gemini-3.5-flash'
   ): Promise<T> {
     const client = this.getClient();
 
-    // Build unique candidate models list, excluding known deprecated 404 models
+    // Build unique candidate models list using supported Gemini model identifiers
     const candidates = Array.from(
-      new Set([modelName, 'gemini-2.0-flash', 'gemma-4-31b-it', 'gemini-flash-latest', 'gemma-4-26b-a4b-it', 'gemini-2.0-flash-lite'])
-    ).filter(m => m !== 'gemini-2.5-flash-lite' && m !== 'gemini-1.5-flash');
+      new Set([modelName, 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-flash'])
+    );
 
     let lastError: any = null;
 
@@ -160,14 +156,14 @@ export class GeminiService {
    */
   public static async generateText(
     prompt: string,
-    modelName: string = 'gemini-2.0-flash',
+    modelName: string = 'gemini-3.5-flash',
     temperature: number = 0.5
   ): Promise<string> {
     const client = this.getClient();
 
     const candidates = Array.from(
-      new Set([modelName, 'gemini-2.0-flash', 'gemma-4-31b-it', 'gemini-flash-latest', 'gemma-4-26b-a4b-it'])
-    ).filter(m => m !== 'gemini-2.5-flash-lite' && m !== 'gemini-1.5-flash');
+      new Set([modelName, 'gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-2.5-flash'])
+    );
 
     let lastError: any = null;
 

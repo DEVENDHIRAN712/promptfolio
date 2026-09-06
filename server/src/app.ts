@@ -19,7 +19,8 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Static file serving for uploaded resumes and avatars
-app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+const uploadPath = process.env.UPLOAD_DIR || path.resolve(process.cwd(), 'uploads');
+app.use('/uploads', express.static(uploadPath));
 
 // API Routes
 app.use('/api/auth', authRoutes);

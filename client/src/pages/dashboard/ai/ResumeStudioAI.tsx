@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Copy, Check, RefreshCw, ShieldCheck, Award, Briefcase, Cpu, Download } from 'lucide-react';
+import { FileText, Copy, Check, RefreshCw, ShieldCheck, Award, Briefcase, Cpu, Download, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import api from '@/lib/axios';
@@ -13,13 +14,14 @@ export const ResumeStudioAI: React.FC = () => {
   const [style, setStyle] = useState<'ATS' | 'Modern' | 'Minimal'>('ATS');
   const [jobTitle, setJobTitle] = useState('Senior Full Stack Software Engineer');
   const [targetCompany, setTargetCompany] = useState('Apple / Vercel / Google');
+  const [jobDescription, setJobDescription] = useState('');
   const [generatedResume, setGeneratedResume] = useState<any | null>(null);
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'visual' | 'raw'>('visual');
 
   const generateMutation = useMutation({
     mutationFn: async () => {
-      const res = await api.post('/ai/generate-resume', { style, jobTitle, targetCompany });
+      const res = await api.post('/ai/generate-resume', { style, jobTitle, targetCompany, jobDescription });
       return res.data.resume;
     },
     onSuccess: (data) => {
@@ -33,6 +35,8 @@ export const ResumeStudioAI: React.FC = () => {
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
   };
+
+  const atsAnalysis = generatedResume?.atsAnalysis;
 
   return (
     <div className="space-y-6">
@@ -64,11 +68,11 @@ export const ResumeStudioAI: React.FC = () => {
                 id="styleSelector"
                 value={style}
                 onChange={(e: any) => setStyle(e.target.value)}
-                className="flex h-10 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 text-sm text-slate-100 focus:ring-1 focus:ring-purple-500 font-semibold"
+                className="flex h-10 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 text-sm text-slate-100 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-semibold"
               >
-                <option value="ATS">ATS (Applicant Tracking System Optimized)</option>
-                <option value="Modern">Modern (Architectural & Leadership Focus)</option>
-                <option value="Minimal">Minimal (High-Signal 1-Page Executive)</option>
+                <option value="ATS" className="bg-slate-900 text-slate-100">ATS (Applicant Tracking System Optimized)</option>
+                <option value="Modern" className="bg-slate-900 text-slate-100">Modern (Architectural &amp; Leadership Focus)</option>
+                <option value="Minimal" className="bg-slate-900 text-slate-100">Minimal (High-Signal 1-Page Executive)</option>
               </select>
             </div>
 
@@ -81,7 +85,7 @@ export const ResumeStudioAI: React.FC = () => {
                 value={jobTitle}
                 onChange={(e) => setJobTitle(e.target.value)}
                 placeholder="Senior Backend Engineer"
-                className="bg-slate-950/80 border-slate-800"
+                className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-semibold"
               />
             </div>
 
@@ -94,9 +98,23 @@ export const ResumeStudioAI: React.FC = () => {
                 value={targetCompany}
                 onChange={(e) => setTargetCompany(e.target.value)}
                 placeholder="Fintech Startup / Fortune 500"
-                className="bg-slate-950/80 border-slate-800"
+                className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-semibold"
               />
             </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="jobDescription" className="text-xs font-bold uppercase tracking-wider text-slate-300">
+              Target Job Description (Optional for ATS Keyword Match Analysis)
+            </Label>
+            <Textarea
+              id="jobDescription"
+              rows={3}
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              placeholder="Paste the full job description or technical requirements here to calculate exact ATS Keyword Match..."
+              className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-xs leading-relaxed font-mono"
+            />
           </div>
 
           <div className="flex items-center justify-between pt-2">
@@ -143,7 +161,7 @@ export const ResumeStudioAI: React.FC = () => {
             <div className="space-y-1">
               <h4 className="text-base font-bold text-white">Tailoring Candidate Tokens to {jobTitle}...</h4>
               <p className="text-xs text-slate-400 max-w-md mx-auto">
-                Running keyword density analysis against {targetCompany} standards, rewriting work experience bullet points for scannable impact, and formatting JSON.
+                Running deterministic ATS keyword analysis, rewriting work experience bullet points for scannable impact, and formatting JSON.
               </p>
             </div>
             <div className="w-48 h-1.5 bg-slate-800 rounded-full mx-auto overflow-hidden">
@@ -169,16 +187,24 @@ export const ResumeStudioAI: React.FC = () => {
         <Card className="border-slate-800/80 bg-slate-900/60 backdrop-blur shadow-2xl">
           <CardHeader className="border-b border-slate-800/80 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <CardTitle className="text-xl font-bold text-white">
                   {generatedResume.header?.fullName || 'Candidate'} &minus; {style} Resume
                 </CardTitle>
-                <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-mono">
-                  ATS Match: {generatedResume.atsScoreOptimization?.estimatedAtsMatchPercentage || 94}%
-                </Badge>
+                {atsAnalysis?.hasJobDescription ? (
+                  <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-mono">
+                    ATS Keyword Match: {atsAnalysis.matchPercentage}%
+                  </Badge>
+                ) : (
+                  <Badge className="bg-slate-800 text-slate-400 border border-slate-700 text-xs font-mono">
+                    Job description not provided
+                  </Badge>
+                )}
               </div>
               <CardDescription className="text-xs pt-1">
-                {generatedResume.atsScoreOptimization?.tailoringNotes || `Tailored for ${jobTitle} at ${targetCompany}`}
+                {atsAnalysis?.hasJobDescription
+                  ? atsAnalysis.message
+                  : `Tailored for ${jobTitle} at ${targetCompany}`}
               </CardDescription>
             </div>
 
@@ -247,15 +273,43 @@ export const ResumeStudioAI: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Target Keywords */}
-                {Array.isArray(generatedResume.atsScoreOptimization?.keyTargetKeywordsIncluded) && (
-                  <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20 flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-bold text-purple-300">ATS Keywords Matched:</span>
-                    {generatedResume.atsScoreOptimization.keyTargetKeywordsIncluded.map((kw: string, i: number) => (
-                      <Badge key={i} variant="outline" className="text-[11px] font-mono text-purple-300 border-purple-500/30">
-                        {kw}
-                      </Badge>
-                    ))}
+                {/* Deterministic ATS Keyword Breakdown */}
+                {atsAnalysis?.hasJobDescription && (
+                  <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4" /> ATS Keyword Match Breakdown ({atsAnalysis.matchPercentage}%)
+                      </h3>
+                      <span className="text-[11px] font-mono text-slate-400">
+                        {atsAnalysis.matchedKeywords.length} Matched / {atsAnalysis.missingKeywords.length} Missing
+                      </span>
+                    </div>
+
+                    {atsAnalysis.matchedKeywords.length > 0 && (
+                      <div className="space-y-1">
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Verified Matched Keywords:</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {atsAnalysis.matchedKeywords.map((kw: string, i: number) => (
+                            <Badge key={i} className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] font-mono">
+                              ✓ {kw}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {atsAnalysis.missingKeywords.length > 0 && (
+                      <div className="space-y-1 pt-1">
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Missing Keywords from JD:</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {atsAnalysis.missingKeywords.map((kw: string, i: number) => (
+                            <Badge key={i} variant="outline" className="bg-slate-950 text-slate-400 border-slate-800 text-[11px] font-mono">
+                              ✗ {kw}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

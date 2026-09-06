@@ -1,11 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
-  MapPin, ExternalLink, Globe, Download,
+  MapPin, ExternalLink, Download,
   Briefcase, GraduationCap, Award, Code, Sparkles, ChevronRight, CheckCircle2
 } from 'lucide-react';
 import { IThemeProps } from '../types';
-import { GithubIcon, LinkedinIcon, TwitterIcon } from '../SocialIcons';
+import { GithubIcon, LinkedinIcon } from '../SocialIcons';
 
 export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
   const { user, profile, experiences, educations, skills, projects, certificates, githubConnection, latestResume } = data;
@@ -18,20 +18,10 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
       const start = new Date(exp.startDate);
       const end = exp.current ? new Date() : (exp.endDate ? new Date(exp.endDate) : new Date());
       const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-      totalMonths += isNaN(months) ? 0 : months;
+      totalMonths += isNaN(months) || months < 0 ? 0 : months;
     });
-    const yrs = Math.round((totalMonths / 12) * 10) / 10;
-    return yrs > 0 ? yrs : 1;
+    return Math.round((totalMonths / 12) * 10) / 10;
   }, [experiences]);
-
-  // 2. Mock visitor count that increments nicely
-  const [visitors, setVisitors] = React.useState(1480);
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setVisitors((prev) => prev + Math.floor(Math.random() * 3) + 1);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
 
   const containerVariants: any = {
     hidden: { opacity: 0 },
@@ -78,9 +68,11 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
               <motion.h1 variants={itemVariants} className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-[1.08]">
                 {user.name}
               </motion.h1>
-              <motion.p variants={itemVariants} className="text-xl sm:text-2xl font-medium text-[#a1a1a6] tracking-tight">
-                {profile.title || 'Full Stack Software Engineer'}
-              </motion.p>
+              {profile.title && (
+                <motion.p variants={itemVariants} className="text-xl sm:text-2xl font-medium text-[#a1a1a6] tracking-tight">
+                  {profile.title}
+                </motion.p>
+              )}
             </div>
 
             {profile.bio && (
@@ -89,15 +81,19 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
               </motion.p>
             )}
 
-            <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm font-medium text-[#86868b]">
-              {profile.location && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-4 h-4 text-blue-500" /> {profile.location}
-                </span>
-              )}
-              <span>&bull;</span>
-              <span>{yearsOfExperience} Years Experience</span>
-            </motion.div>
+            {(profile.location || (experiences && experiences.length > 0 && yearsOfExperience > 0)) && (
+              <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center sm:justify-start gap-4 text-sm font-medium text-[#86868b]">
+                {profile.location && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4 text-blue-500" /> {profile.location}
+                  </span>
+                )}
+                {profile.location && experiences && experiences.length > 0 && yearsOfExperience > 0 && <span>&bull;</span>}
+                {experiences && experiences.length > 0 && yearsOfExperience > 0 && (
+                  <span>{yearsOfExperience} {yearsOfExperience === 1 ? 'Year' : 'Years'} Experience</span>
+                )}
+              </motion.div>
+            )}
 
             {/* Social Links & CTA */}
             <motion.div variants={itemVariants} className="flex flex-wrap items-center justify-center sm:justify-start gap-3.5 pt-2">
@@ -144,25 +140,23 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
               )}
             </motion.div>
 
-            {/* Animated Statistics Grid */}
+            {/* Statistics Grid */}
             <motion.div variants={itemVariants} className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-[#1d1d1f]">
               <div className="space-y-1">
                 <span className="block text-2xl font-bold text-white tracking-tight">{projects?.length || 0}</span>
                 <span className="block text-xs uppercase tracking-widest text-[#86868b] font-semibold">Projects</span>
               </div>
               <div className="space-y-1">
-                <span className="block text-2xl font-bold text-white tracking-tight">{yearsOfExperience}</span>
-                <span className="block text-xs uppercase tracking-widest text-[#86868b] font-semibold">Years Exp</span>
+                <span className="block text-2xl font-bold text-white tracking-tight">{experiences?.length || 0}</span>
+                <span className="block text-xs uppercase tracking-widest text-[#86868b] font-semibold">Experience Roles</span>
               </div>
               <div className="space-y-1">
                 <span className="block text-2xl font-bold text-white tracking-tight">{skills?.length || 0}</span>
-                <span className="block text-xs uppercase tracking-widest text-[#86868b] font-semibold">Skills Verified</span>
+                <span className="block text-xs uppercase tracking-widest text-[#86868b] font-semibold">Skills</span>
               </div>
               <div className="space-y-1">
-                <span className="block text-2xl font-bold text-blue-400 tracking-tight font-mono">
-                  {visitors}
-                </span>
-                <span className="block text-xs uppercase tracking-widest text-[#86868b] font-semibold">Visitors</span>
+                <span className="block text-2xl font-bold text-white tracking-tight">{certificates?.length || 0}</span>
+                <span className="block text-xs uppercase tracking-widest text-[#86868b] font-semibold">Certificates</span>
               </div>
             </motion.div>
           </div>
@@ -202,21 +196,21 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
         )}
 
         {/* 3. Experience Timeline */}
-        {experiences && experiences.length > 0 && (
-          <motion.section
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-            className="space-y-8"
-          >
-            <div className="flex items-center justify-between border-b border-[#2d2d30] pb-4">
-              <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-                <Briefcase className="w-6 h-6 text-blue-500" /> Work Experience
-              </h2>
-              <span className="text-xs font-mono text-[#86868b]">{experiences.length} Roles</span>
-            </div>
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={containerVariants}
+          className="space-y-8"
+        >
+          <div className="flex items-center justify-between border-b border-[#2d2d30] pb-4">
+            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+              <Briefcase className="w-6 h-6 text-blue-500" /> Work Experience
+            </h2>
+            <span className="text-xs font-mono text-[#86868b]">{experiences?.length || 0} Roles</span>
+          </div>
 
+          {experiences && experiences.length > 0 ? (
             <div className="space-y-6">
               {experiences.map((exp) => (
                 <motion.div
@@ -253,25 +247,29 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
                 </motion.div>
               ))}
             </div>
-          </motion.section>
-        )}
+          ) : (
+            <div className="p-8 rounded-3xl bg-[#161618] border border-[#2d2d30] text-center text-[#86868b] text-sm font-medium">
+              Experience will appear here when added.
+            </div>
+          )}
+        </motion.section>
 
         {/* 4. Skills Cluster Section */}
-        {skills && skills.length > 0 && (
-          <motion.section
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-            className="space-y-8"
-          >
-            <div className="flex items-center justify-between border-b border-[#2d2d30] pb-4">
-              <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-                <Code className="w-6 h-6 text-blue-500" /> Core Competencies &amp; Skills
-              </h2>
-              <span className="text-xs font-mono text-[#86868b]">{skills.length} Skills Verified</span>
-            </div>
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={containerVariants}
+          className="space-y-8"
+        >
+          <div className="flex items-center justify-between border-b border-[#2d2d30] pb-4">
+            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+              <Code className="w-6 h-6 text-blue-500" /> Core Competencies &amp; Skills
+            </h2>
+            <span className="text-xs font-mono text-[#86868b]">{skills?.length || 0} Skills</span>
+          </div>
 
+          {skills && skills.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
               {skills.map((skill) => (
                 <motion.div
@@ -289,25 +287,29 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
                 </motion.div>
               ))}
             </div>
-          </motion.section>
-        )}
+          ) : (
+            <div className="p-8 rounded-3xl bg-[#161618] border border-[#2d2d30] text-center text-[#86868b] text-sm font-medium">
+              Skills will appear here when added.
+            </div>
+          )}
+        </motion.section>
 
         {/* 5. Featured Projects Grid */}
-        {projects && projects.length > 0 && (
-          <motion.section
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-            className="space-y-8"
-          >
-            <div className="flex items-center justify-between border-b border-[#2d2d30] pb-4">
-              <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-                <Sparkles className="w-6 h-6 text-blue-500" /> Featured Engineering Projects
-              </h2>
-              <span className="text-xs font-mono text-[#86868b]">{projects.length} Case Studies</span>
-            </div>
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={containerVariants}
+          className="space-y-8"
+        >
+          <div className="flex items-center justify-between border-b border-[#2d2d30] pb-4">
+            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+              <Sparkles className="w-6 h-6 text-blue-500" /> Featured Engineering Projects
+            </h2>
+            <span className="text-xs font-mono text-[#86868b]">{projects?.length || 0} Projects</span>
+          </div>
 
+          {projects && projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {projects.map((proj) => (
                 <motion.div
@@ -364,24 +366,28 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
                 </motion.div>
               ))}
             </div>
-          </motion.section>
-        )}
+          ) : (
+            <div className="p-8 rounded-3xl bg-[#161618] border border-[#2d2d30] text-center text-[#86868b] text-sm font-medium">
+              Projects will appear here when added.
+            </div>
+          )}
+        </motion.section>
 
         {/* 6. Education Section */}
-        {educations && educations.length > 0 && (
-          <motion.section
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={containerVariants}
-            className="space-y-8"
-          >
-            <div className="flex items-center justify-between border-b border-[#2d2d30] pb-4">
-              <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-                <GraduationCap className="w-6 h-6 text-blue-500" /> Academic Background
-              </h2>
-            </div>
+        <motion.section
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={containerVariants}
+          className="space-y-8"
+        >
+          <div className="flex items-center justify-between border-b border-[#2d2d30] pb-4">
+            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+              <GraduationCap className="w-6 h-6 text-blue-500" /> Academic Background
+            </h2>
+          </div>
 
+          {educations && educations.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {educations.map((edu) => (
                 <motion.div
@@ -398,22 +404,26 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
                 </motion.div>
               ))}
             </div>
-          </motion.section>
-        )}
+          ) : (
+            <div className="p-8 rounded-3xl bg-[#161618] border border-[#2d2d30] text-center text-[#86868b] text-sm font-medium">
+              Education will appear here when added.
+            </div>
+          )}
+        </motion.section>
 
         {/* 7. Certificates & GitHub Showcase */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {certificates && certificates.length > 0 && (
-            <motion.section
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={containerVariants}
-              className="space-y-6 p-8 rounded-3xl bg-[#161618] border border-[#2d2d30]"
-            >
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <Award className="w-5 h-5 text-blue-500" /> Professional Certifications
-              </h3>
+          <motion.section
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={containerVariants}
+            className="space-y-6 p-8 rounded-3xl bg-[#161618] border border-[#2d2d30]"
+          >
+            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <Award className="w-5 h-5 text-blue-500" /> Professional Certifications
+            </h3>
+            {certificates && certificates.length > 0 ? (
               <div className="space-y-4">
                 {certificates.map((cert) => (
                   <div key={cert._id} className="flex items-center justify-between border-b border-[#242426] pb-3 last:border-0 last:pb-0">
@@ -434,10 +444,12 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
                   </div>
                 ))}
               </div>
-            </motion.section>
-          )}
+            ) : (
+              <p className="text-xs text-[#86868b] text-center py-4">Certificates will appear here when added.</p>
+            )}
+          </motion.section>
 
-          {githubConnection && githubConnection.username && (
+          {githubConnection && githubConnection.username ? (
             <motion.section
               initial="hidden"
               whileInView="visible"
@@ -448,14 +460,15 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                    <GithubIcon className="w-5 h-5 text-white" /> Verified GitHub Intelligence
+                    <GithubIcon className="w-5 h-5 text-white" /> Verified GitHub Connection
                   </h3>
                   <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Live Sync
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Connected
                   </span>
                 </div>
                 <p className="text-xs text-[#a1a1a6]">
-                  Connected public GitHub account: <strong className="text-white">@{githubConnection.username}</strong>
+                  Connected GitHub profile: <strong className="text-white">@{githubConnection.username}</strong>
+                  {typeof githubConnection.publicRepos === 'number' && githubConnection.publicRepos > 0 ? ` (${githubConnection.publicRepos} public repositories)` : ''}
                 </p>
               </div>
 
@@ -469,6 +482,17 @@ export const AppleTheme: React.FC<IThemeProps> = ({ data }) => {
                   Explore GitHub Profile <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
+            </motion.section>
+          ) : (
+            <motion.section
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={containerVariants}
+              className="space-y-4 p-8 rounded-3xl bg-[#161618] border border-[#2d2d30] flex flex-col items-center justify-center text-center"
+            >
+              <GithubIcon className="w-8 h-8 text-[#86868b]" />
+              <p className="text-xs text-[#86868b] font-medium">GitHub profile not connected.</p>
             </motion.section>
           )}
         </div>

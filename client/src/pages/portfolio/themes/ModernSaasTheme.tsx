@@ -1,11 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import {
-  MapPin, ExternalLink, Globe, Download,
-  Briefcase, GraduationCap, Award, Code, Sparkles, ChevronRight, CheckCircle, ArrowUpRight
+  MapPin, ExternalLink, Download,
+  Briefcase, GraduationCap, Award, Code, Sparkles, ChevronRight, CheckCircle, ArrowUpRight, CheckCircle2
 } from 'lucide-react';
 import { IThemeProps } from '../types';
-import { GithubIcon, LinkedinIcon, TwitterIcon } from '../SocialIcons';
+import { GithubIcon, LinkedinIcon } from '../SocialIcons';
 
 export const ModernSaasTheme: React.FC<IThemeProps> = ({ data }) => {
   const { user, profile, experiences, educations, skills, projects, certificates, githubConnection, latestResume } = data;
@@ -18,20 +18,10 @@ export const ModernSaasTheme: React.FC<IThemeProps> = ({ data }) => {
       const start = new Date(exp.startDate);
       const end = exp.current ? new Date() : (exp.endDate ? new Date(exp.endDate) : new Date());
       const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-      totalMonths += isNaN(months) ? 0 : months;
+      totalMonths += isNaN(months) || months < 0 ? 0 : months;
     });
-    const yrs = Math.round((totalMonths / 12) * 10) / 10;
-    return yrs > 0 ? yrs : 1;
+    return Math.round((totalMonths / 12) * 10) / 10;
   }, [experiences]);
-
-  // 2. Mock visitor count
-  const [visitors, setVisitors] = React.useState(2940);
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setVisitors((prev) => prev + Math.floor(Math.random() * 4) + 1);
-    }, 4200);
-    return () => clearInterval(timer);
-  }, []);
 
   const saasCard = "p-8 sm:p-10 rounded-3xl bg-gradient-to-b from-slate-900/90 to-slate-950/95 border border-slate-800/80 hover:border-slate-700/80 shadow-2xl transition-all relative overflow-hidden group";
 
@@ -63,9 +53,11 @@ export const ModernSaasTheme: React.FC<IThemeProps> = ({ data }) => {
               {user.name}
             </h1>
 
-            <p className="text-xl sm:text-2xl font-bold text-slate-300 text-left">
-              {profile.title || 'Full Stack Software Engineer'}
-            </p>
+            {profile.title && (
+              <p className="text-xl sm:text-2xl font-bold text-slate-300 text-left">
+                {profile.title}
+              </p>
+            )}
 
             {profile.bio && (
               <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-light text-left">
@@ -110,16 +102,16 @@ export const ModernSaasTheme: React.FC<IThemeProps> = ({ data }) => {
                 <span className="block text-xs uppercase tracking-wider text-slate-400 font-semibold">Projects Showcase</span>
               </div>
               <div className="space-y-1">
-                <span className="block text-2xl font-black text-white">{yearsOfExperience}</span>
-                <span className="block text-xs uppercase tracking-wider text-slate-400 font-semibold">Years Experience</span>
+                <span className="block text-2xl font-black text-white">{experiences?.length || 0}</span>
+                <span className="block text-xs uppercase tracking-wider text-slate-400 font-semibold">Experience Roles</span>
               </div>
               <div className="space-y-1">
                 <span className="block text-2xl font-black text-white">{skills?.length || 0}</span>
                 <span className="block text-xs uppercase tracking-wider text-slate-400 font-semibold">Skills Verified</span>
               </div>
               <div className="space-y-1">
-                <span className="block text-2xl font-black text-blue-400 font-mono">{visitors}</span>
-                <span className="block text-xs uppercase tracking-wider text-slate-400 font-semibold">Visitors</span>
+                <span className="block text-2xl font-black text-blue-400 font-mono">{certificates?.length || 0}</span>
+                <span className="block text-xs uppercase tracking-wider text-slate-400 font-semibold">Certifications</span>
               </div>
             </div>
           </div>
@@ -155,15 +147,15 @@ export const ModernSaasTheme: React.FC<IThemeProps> = ({ data }) => {
         )}
 
         {/* 3. Experience */}
-        {experiences && experiences.length > 0 && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
-              <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-                <Briefcase className="w-6 h-6 text-blue-500" /> Career Experience
-              </h2>
-              <span className="text-xs font-mono text-slate-400">{experiences.length} Positions</span>
-            </div>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+              <Briefcase className="w-6 h-6 text-blue-500" /> Career Experience
+            </h2>
+            <span className="text-xs font-mono text-slate-400">{experiences?.length || 0} Positions</span>
+          </div>
 
+          {experiences && experiences.length > 0 ? (
             <div className="space-y-6">
               {experiences.map((exp) => (
                 <motion.div key={exp._id} whileHover={{ scale: 1.008 }} className={saasCard}>
@@ -189,17 +181,21 @@ export const ModernSaasTheme: React.FC<IThemeProps> = ({ data }) => {
                 </motion.div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className={saasCard}>
+              <p className="text-sm text-slate-400 text-center">Experience will appear here when added.</p>
+            </div>
+          )}
+        </div>
 
         {/* 4. Skills */}
-        {skills && skills.length > 0 && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
-              <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-                <Code className="w-6 h-6 text-blue-500" /> Skills &amp; Technologies
-              </h2>
-            </div>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+              <Code className="w-6 h-6 text-blue-500" /> Skills &amp; Technologies
+            </h2>
+          </div>
+          {skills && skills.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {skills.map((skill) => (
                 <motion.div key={skill._id} whileHover={{ y: -3 }} className="p-4 rounded-2xl bg-slate-900/70 border border-slate-800 flex items-center justify-between gap-3 shadow-md">
@@ -212,17 +208,21 @@ export const ModernSaasTheme: React.FC<IThemeProps> = ({ data }) => {
                 </motion.div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className={saasCard}>
+              <p className="text-sm text-slate-400 text-center">Skills will appear here when added.</p>
+            </div>
+          )}
+        </div>
 
         {/* 5. Projects */}
-        {projects && projects.length > 0 && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
-              <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
-                <Sparkles className="w-6 h-6 text-blue-500" /> Case Studies &amp; Projects
-              </h2>
-            </div>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
+            <h2 className="text-2xl font-bold tracking-tight text-white flex items-center gap-3">
+              <Sparkles className="w-6 h-6 text-blue-500" /> Case Studies &amp; Projects
+            </h2>
+          </div>
+          {projects && projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {projects.map((proj) => (
                 <div key={proj._id} className={`${saasCard} flex flex-col justify-between`}>
@@ -246,16 +246,20 @@ export const ModernSaasTheme: React.FC<IThemeProps> = ({ data }) => {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className={saasCard}>
+              <p className="text-sm text-slate-400 text-center">Projects will appear here when added.</p>
+            </div>
+          )}
+        </div>
 
         {/* 6. Education & Certs */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {educations && educations.length > 0 && (
-            <div className={saasCard}>
-              <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6">
-                <GraduationCap className="w-5 h-5 text-blue-500" /> Academic Credentials
-              </h3>
+          <div className={saasCard}>
+            <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6">
+              <GraduationCap className="w-5 h-5 text-blue-500" /> Academic Credentials
+            </h3>
+            {educations && educations.length > 0 ? (
               <div className="space-y-6">
                 {educations.map((edu) => (
                   <div key={edu._id} className="border-b border-slate-800/80 pb-4 last:border-0 last:pb-0">
@@ -265,14 +269,16 @@ export const ModernSaasTheme: React.FC<IThemeProps> = ({ data }) => {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-xs text-slate-400 text-center py-2">Education will appear here when added.</p>
+            )}
+          </div>
 
-          {certificates && certificates.length > 0 && (
-            <div className={saasCard}>
-              <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6">
-                <Award className="w-5 h-5 text-blue-500" /> Verified Certifications
-              </h3>
+          <div className={saasCard}>
+            <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-6">
+              <Award className="w-5 h-5 text-blue-500" /> Verified Certifications
+            </h3>
+            {certificates && certificates.length > 0 ? (
               <div className="space-y-4">
                 {certificates.map((cert) => (
                   <div key={cert._id} className="flex items-center justify-between border-b border-slate-800/80 pb-3 last:border-0 last:pb-0">
@@ -284,11 +290,35 @@ export const ModernSaasTheme: React.FC<IThemeProps> = ({ data }) => {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-xs text-slate-400 text-center py-2">Certificates will appear here when added.</p>
+            )}
+          </div>
         </div>
 
-        {/* 7. Contact & Footer */}
+        {/* 7. GitHub Showcase */}
+        {githubConnection && githubConnection.username ? (
+          <div className={saasCard}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <GithubIcon className="w-5 h-5 text-white" /> Verified GitHub Connection
+              </h3>
+              <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" /> Connected
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-2">
+              Connected GitHub profile: <strong className="text-white">@{githubConnection.username}</strong>
+              {typeof githubConnection.publicRepos === 'number' && githubConnection.publicRepos > 0 ? ` (${githubConnection.publicRepos} public repositories)` : ''}
+            </p>
+          </div>
+        ) : (
+          <div className={`${saasCard} text-center py-6`}>
+            <p className="text-xs text-slate-400 font-medium">GitHub profile not connected.</p>
+          </div>
+        )}
+
+        {/* 8. Contact & Footer */}
         <footer className="pt-12 pb-24 text-center space-y-8">
           <div className={`${saasCard} max-w-2xl mx-auto space-y-4 text-center`}>
             <h3 className="text-2xl sm:text-3xl font-black text-white">Ready for High-Impact Engineering?</h3>

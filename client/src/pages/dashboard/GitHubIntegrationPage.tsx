@@ -114,7 +114,7 @@ export const GitHubIntegrationPage: React.FC = () => {
     connectMutation.mutate(usernameInput.trim());
   };
 
-  const reposList = reposData?.repositories || [];
+  const reposList = reposData?.repos || reposData?.repositories || [];
 
   const { filteredRepos, languages, totalStars, totalForks } = useMemo(() => {
     let stars = 0;

@@ -9,7 +9,9 @@ import { Profile } from '../models/Profile';
 import { Skill } from '../models/Skill';
 
 // Configure Multer storage
-const uploadDir = path.join(__dirname, '../../uploads/resumes');
+const uploadDir = process.env.UPLOAD_DIR
+  ? path.join(process.env.UPLOAD_DIR, 'resumes')
+  : path.resolve(process.cwd(), 'uploads/resumes');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }

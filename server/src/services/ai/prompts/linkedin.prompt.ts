@@ -8,42 +8,48 @@ Special Focus / Keywords: {{focusArea}}
 Candidate Profile Data:
 {{profileData}}
 
+CRITICAL GROUNDING & ANTI-HALLUCINATION DIRECTIVES:
+1. Optimize headline, About section, experience wording, and readability based strictly on Candidate Profile Data.
+2. NEVER invent skills, job titles, employers, projects, achievements, metrics, certifications, years of experience, or unverified claims (e.g. "Ex-FAANG", "Ex-Vercel" unless explicitly present in profile data).
+3. Supplied keywords ({{focusArea}}) may be incorporated ONLY if supported by candidate data or framed honestly as career target/interest areas. Do NOT falsely claim expertise in unsupported tools.
+4. For Experience Rewrites, preserve original role titles, company names, and verified achievements. Format for scannability without fabricating metrics.
+
 Guidelines:
-1. Headlines should be keyword-optimized for LinkedIn search algorithms while clearly communicating unique engineering value (e.g., "Senior Full Stack Engineer | React 19 & Distributed AI Systems | Ex-Vercel | Building high-concurrency web apps").
-2. The About section should tell an authentic, engaging story that establishes authority, lists key technical competencies in scannable bullet points, and provides a clear contact CTA.
-3. For the Experience Rewrite, take each role from the candidate's work history and format it for LinkedIn scannability (hooks, metrics, tech stack tags).
+1. Headlines should be keyword-optimized while accurately representing candidate's verified skills and target role (Max 220 characters).
+2. The About section should tell an authentic story, list verified competencies in scannable bullet points, and provide a clear contact CTA.
+3. Experience Rewrites must format candidate's actual work history for LinkedIn scannability (hooks, verified accomplishments, tech stack tags).
 
 Return ONLY structured JSON adhering exactly to this schema:
 {
   "headlineOptions": [
     {
       "style": "String - e.g. 'Recruiter & Algorithm Optimized'",
+      "headline": "String - Max 220 characters based strictly on verified profile"
+    },
+    {
+      "style": "String - e.g. 'Engineering & Architecture Focus'",
       "headline": "String - Max 220 characters"
     },
     {
-      "style": "String - e.g. 'Thought Leader & Architectural Authority'",
-      "headline": "String - Max 220 characters"
-    },
-    {
-      "style": "String - e.g. 'Punchy & Modern Startup Builder'",
+      "style": "String - e.g. 'Modern Technical Specialist'",
       "headline": "String - Max 220 characters"
     }
   ],
   "aboutSection": {
     "hook": "String - First 2 lines that show above the 'see more' fold",
-    "fullAboutBio": "String - Complete LinkedIn About section formatted with clean spacing, emojis/bullet symbols, and technical skill clusters",
+    "fullAboutBio": "String - Complete LinkedIn About section with verified technical skill clusters",
     "callToAction": "String - How recruiters or founders should reach out"
   },
   "experienceRewrites": [
     {
-      "originalRole": "String",
-      "company": "String",
-      "linkedinTitle": "String - Optimized role headline for LinkedIn",
-      "linkedinDescription": "String - Scannable summary + 3 action-packed bullet points + 'Top Skills: [Tech1, Tech2]'"
+      "originalRole": "String - Verified role from profile",
+      "company": "String - Verified company from profile",
+      "linkedinTitle": "String - Clear role headline for LinkedIn",
+      "linkedinDescription": "String - Scannable summary + verified action bullet points + 'Top Skills: [Verified Stack]'"
     }
   ],
   "creatorModeTips": [
-    "String - Actionable tips on what hashtags or topics this candidate should post about to grow personal brand"
+    "String - Actionable tips on what hashtags or topics candidate can post about based on verified background"
   ]
 }
 `;

@@ -81,7 +81,7 @@ export const PortfolioStudio: React.FC = () => {
               value={focusArea}
               onChange={(e) => setFocusArea(e.target.value)}
               placeholder="e.g. Distributed AI Systems, React 19 Frontend Architecture, Cloud DevOps"
-              className="bg-slate-950/80 border-slate-800"
+              className="bg-slate-950/80 border-slate-800 text-slate-100 placeholder:text-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
 

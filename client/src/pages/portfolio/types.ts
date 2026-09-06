@@ -1,4 +1,4 @@
-export type PortfolioThemeType = 'Apple' | 'Glass' | 'Minimal' | 'Cyberpunk' | 'Developer Terminal' | 'Modern SaaS';
+export type PortfolioThemeType = 'Apple' | 'Glass' | 'Minimal' | 'Cyberpunk' | 'Developer Terminal' | 'Modern SaaS' | 'Neo Brutalist' | 'Aurora Prism' | 'Creative Studio' | 'Architect Grid';
 
 export interface IUserData {
   _id: string;
