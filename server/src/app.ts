@@ -10,9 +10,15 @@ import aiRoutes from './routes/ai.routes';
 
 const app = express();
 
+const defaultOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+const clientOrigins = process.env.CLIENT_ORIGIN
+  ? process.env.CLIENT_ORIGIN.split(',').map((origin) => origin.trim()).filter(Boolean)
+  : [];
+const allowedOrigins = Array.from(new Set([...defaultOrigins, ...clientOrigins]));
+
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: allowedOrigins,
   credentials: true,
 }));
 app.use(express.json({ limit: '50mb' }));
