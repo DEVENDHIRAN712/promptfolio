@@ -192,19 +192,25 @@ export const ResumeStudioAI: React.FC = () => {
                   {generatedResume.header?.fullName || 'Candidate'} &minus; {style} Resume
                 </CardTitle>
                 {atsAnalysis?.hasJobDescription ? (
-                  <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs font-mono">
-                    ATS Keyword Match: {atsAnalysis.matchPercentage}%
+                  <Badge className={`text-xs font-mono border ${
+                    atsAnalysis.matchPercentage >= 75
+                      ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                      : atsAnalysis.matchPercentage >= 50
+                      ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                      : 'bg-red-500/15 text-red-400 border-red-500/30'
+                  }`}>
+                    ATS Match: {atsAnalysis.matchPercentage}%
                   </Badge>
                 ) : (
-                  <Badge className="bg-slate-800 text-slate-400 border border-slate-700 text-xs font-mono">
-                    Job description not provided
+                  <Badge className="bg-slate-800 text-slate-300 border border-slate-700 text-xs font-mono">
+                    Resume Health: {atsAnalysis?.resumeHealthScore ?? 85}/100
                   </Badge>
                 )}
               </div>
               <CardDescription className="text-xs pt-1">
                 {atsAnalysis?.hasJobDescription
                   ? atsAnalysis.message
-                  : `Tailored for ${jobTitle} at ${targetCompany}`}
+                  : `Resume Health Score computed. Add a Job Description to calculate ATS Match.`}
               </CardDescription>
             </div>
 
@@ -234,7 +240,7 @@ export const ResumeStudioAI: React.FC = () => {
                 size="sm"
                 variant="outline"
                 onClick={handleCopyJson}
-                className="text-xs border-slate-700 bg-slate-950/80 hover:bg-slate-800"
+                className="text-xs border-slate-700 bg-slate-950/80 hover:bg-slate-800 text-slate-200"
               >
                 {copied ? <Check className="w-3.5 h-3.5 mr-1 text-emerald-400" /> : <Copy className="w-3.5 h-3.5 mr-1" />}
                 {copied ? 'Copied JSON' : 'Copy JSON'}
@@ -273,43 +279,97 @@ export const ResumeStudioAI: React.FC = () => {
                   </p>
                 </div>
 
-                {/* Deterministic ATS Keyword Breakdown */}
-                {atsAnalysis?.hasJobDescription && (
-                  <div className="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
-                        <CheckCircle2 className="w-4 h-4" /> ATS Keyword Match Breakdown ({atsAnalysis.matchPercentage}%)
-                      </h3>
-                      <span className="text-[11px] font-mono text-slate-400">
-                        {atsAnalysis.matchedKeywords.length} Matched / {atsAnalysis.missingKeywords.length} Missing
-                      </span>
+                {/* Deterministic ATS Score & Requirement Breakdown */}
+                {atsAnalysis?.hasJobDescription ? (
+                  <div className="p-5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                      <div>
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4" /> Deterministic ATS Evaluation ({atsAnalysis.matchPercentage}%)
+                        </h3>
+                        <p className="text-xs text-slate-400 mt-0.5">{atsAnalysis.message}</p>
+                      </div>
+                      {atsAnalysis.scoreBreakdown && (
+                        <div className="flex flex-wrap gap-2 text-[11px] font-mono">
+                          <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300">
+                            Tech: {atsAnalysis.scoreBreakdown.technicalSkills.score}/40
+                          </span>
+                          <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300">
+                            Resp: {atsAnalysis.scoreBreakdown.responsibilities.score}/25
+                          </span>
+                          <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300">
+                            Exp: {atsAnalysis.scoreBreakdown.experience.score}/15
+                          </span>
+                          <span className="px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-slate-300">
+                            Edu: {atsAnalysis.scoreBreakdown.education.score}/10
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    {atsAnalysis.matchedKeywords.length > 0 && (
-                      <div className="space-y-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Verified Matched Keywords:</span>
+                    {/* Required vs Preferred Skills */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                          <span>Required Technical Skills</span>
+                          <span className="text-emerald-400 font-mono">
+                            {(atsAnalysis.matchedRequiredKeywords || []).length} / {((atsAnalysis.matchedRequiredKeywords || []).length + (atsAnalysis.missingRequiredKeywords || []).length) || (atsAnalysis.matchedKeywords || []).length} Matched
+                          </span>
+                        </div>
                         <div className="flex flex-wrap gap-1.5">
-                          {atsAnalysis.matchedKeywords.map((kw: string, i: number) => (
+                          {(atsAnalysis.matchedRequiredKeywords || atsAnalysis.matchedKeywords || []).map((kw: string, i: number) => (
                             <Badge key={i} className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-[11px] font-mono">
                               ✓ {kw}
                             </Badge>
                           ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {atsAnalysis.missingKeywords.length > 0 && (
-                      <div className="space-y-1 pt-1">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Missing Keywords from JD:</span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {atsAnalysis.missingKeywords.map((kw: string, i: number) => (
-                            <Badge key={i} variant="outline" className="bg-slate-950 text-slate-400 border-slate-800 text-[11px] font-mono">
+                          {(atsAnalysis.missingRequiredKeywords || []).map((kw: string, i: number) => (
+                            <Badge key={i} variant="outline" className="bg-red-500/10 text-red-400 border-red-500/20 text-[11px] font-mono">
                               ✗ {kw}
                             </Badge>
                           ))}
                         </div>
                       </div>
+
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                          <span>Preferred Skills &amp; Competencies</span>
+                          <span className="text-purple-400 font-mono">
+                            {(atsAnalysis.matchedPreferredKeywords || []).length} / {((atsAnalysis.matchedPreferredKeywords || []).length + (atsAnalysis.missingPreferredKeywords || []).length) || '0'} Matched
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {(atsAnalysis.matchedPreferredKeywords || []).map((kw: string, i: number) => (
+                            <Badge key={i} className="bg-purple-500/15 text-purple-300 border border-purple-500/30 text-[11px] font-mono">
+                              ✓ {kw}
+                            </Badge>
+                          ))}
+                          {(atsAnalysis.missingPreferredKeywords || []).map((kw: string, i: number) => (
+                            <Badge key={i} variant="outline" className="bg-slate-950 text-slate-400 border-slate-800 text-[11px] font-mono">
+                              - {kw}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Missing Requirements Warnings if any */}
+                    {Array.isArray(atsAnalysis.missingRequirements) && atsAnalysis.missingRequirements.length > 0 && (
+                      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs space-y-1">
+                        <span className="font-bold uppercase tracking-wider block text-[11px]">Key Gaps Identified:</span>
+                        <ul className="list-disc list-inside space-y-0.5 text-[11px]">
+                          {atsAnalysis.missingRequirements.slice(0, 4).map((gap: string, i: number) => (
+                            <li key={i}>{gap}</li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex items-center justify-between text-xs text-slate-300">
+                    <span>Add a Job Description during generation to calculate exact ATS Match percentage &amp; Skill Breakdown.</span>
+                    <Badge variant="outline" className="bg-slate-950 text-slate-400 border-slate-700">
+                      Resume Health: {atsAnalysis?.resumeHealthScore ?? 85}/100
+                    </Badge>
                   </div>
                 )}
 
