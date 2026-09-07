@@ -1,8 +1,8 @@
 import AtsService from './ats.service';
 
-function runAtsTests() {
+function runStrictAtsV2Tests() {
   console.log('==================================================');
-  console.log('🧪 RUNNING DETERMINISTIC ATS SERVICE UNIT TESTS');
+  console.log('🧪 RUNNING STRICT TOP-MNC ATS V2 UNIT TESTS');
   console.log('==================================================\n');
 
   let passed = 0;
@@ -21,163 +21,157 @@ function runAtsTests() {
   }
 
   // ----------------------------------------------------
-  // TEST 1 — Strong Match
+  // REALISTIC TEST 1 — Senior Java Backend Developer vs Node/React Fresher
   // ----------------------------------------------------
-  const strongCandidate = {
-    user: { name: 'Alex Developer', email: 'alex@test.com' },
-    profile: { title: 'Senior Backend Engineer', bio: 'Expert Java & Spring Boot engineer.' },
-    skills: [
-      { name: 'Java' }, { name: 'Spring Boot' }, { name: 'SQL' },
-      { name: 'REST API' }, { name: 'Docker' }, { name: 'AWS' }
-    ],
+  const fresherNodeReactCandidate = {
+    user: { name: 'Fresher Node Dev', email: 'fresher@test.com' },
+    profile: { title: 'Junior Web Developer', bio: 'Recent CS graduate building web applications with Node.js and React.' },
+    skills: [{ name: 'Java' }, { name: 'JavaScript' }, { name: 'React' }, { name: 'Node.js' }, { name: 'MongoDB' }, { name: 'HTML5' }, { name: 'CSS3' }],
     projects: [
       {
-        title: 'Microservice E-Commerce Platform',
-        description: 'Engineered REST APIs using Java and Spring Boot. Optimized PostgreSQL SQL queries and deployed Docker containers on AWS.',
-        technologies: ['Java', 'Spring Boot', 'SQL', 'REST API', 'Docker', 'AWS']
+        title: 'React Node E-Commerce',
+        description: 'Built frontend UI using React and Tailwind CSS. Developed REST APIs using Node.js and Express with MongoDB database.',
+        technologies: ['React', 'Node.js', 'Express.js', 'MongoDB', 'JavaScript']
       }
     ],
-    experiences: [
-      {
-        role: 'Senior Software Engineer',
-        company: 'TechCorp',
-        description: 'Architected scalable REST APIs with Spring Boot and Java. Managed MongoDB and PostgreSQL databases.',
-        startDate: '2020-01-01',
-        endDate: '2025-01-01',
-        current: false
-      }
-    ],
-    educations: [
-      { degree: 'Bachelor of Science', fieldOfStudy: 'Computer Science', institution: 'State University' }
-    ],
-    certificates: [
-      { title: 'AWS Certified Solutions Architect' }
-    ]
+    experiences: [],
+    educations: [{ degree: 'B.E.', fieldOfStudy: 'Computer Science', institution: 'Tech Institute' }]
   };
 
-  const fullStackJd = `
-    Target Position: Senior Backend Engineer
+  const seniorJavaJd = `
+    Job Title: Senior Java Backend Developer
+    Experience: 5+ years of professional backend engineering experience required
     Requirements:
-    - 5+ years professional experience building web applications
-    - Strong expertise in Java and Spring Boot
-    - Deep knowledge of SQL databases and REST API architecture
+    - Must have strong expertise in Java and Spring Boot framework
+    - Extensive experience building REST APIs and Microservices
+    - Deep knowledge of SQL databases (PostgreSQL/MySQL)
+    - Strong experience with Kafka messaging queues
     Nice to Have:
-    - Docker containerization and AWS cloud deployment experience
+    - Docker containerization and AWS cloud infrastructure deployment
     - Bachelor's degree in Computer Science
   `;
 
-  const res1 = AtsService.calculateMatch(fullStackJd, strongCandidate);
+  const res1 = AtsService.calculateMatch(seniorJavaJd, fresherNodeReactCandidate);
   assert(
-    res1.matchPercentage >= 80 && res1.matchPercentage <= 98,
-    'Strong Match Candidate Score Range',
-    `Calculated Score: ${res1.matchPercentage}% (Expected 80-98%)`
+    res1.matchPercentage <= 38,
+    'Realistic Test 1: Senior Java Backend JD vs Node/React Fresher Candidate',
+    `Calculated Score: ${res1.matchPercentage}% (Expected LOW <= 38%. Missing: Spring Boot, Microservices, SQL, Kafka, Docker, AWS, 5+ yrs exp, Seniority/Domain Mismatch)`
   );
 
   // ----------------------------------------------------
-  // TEST 2 — Partial Match (User's Exact Example)
+  // REALISTIC TEST 2 — Full Stack Developer vs Qualified Intern/Junior
   // ----------------------------------------------------
-  const partialCandidate = {
-    user: { name: 'Dev Candidate', email: 'dev@test.com' },
-    profile: { title: 'Full Stack Developer', bio: 'Building web applications.' },
-    skills: [
-      { name: 'Java' }, { name: 'SQL' }, { name: 'REST API' }
-    ],
+  const fullstackCandidate = {
+    user: { name: 'Fullstack Junior', email: 'junior@test.com' },
+    profile: { title: 'Full Stack Engineer' },
+    skills: [{ name: 'React' }, { name: 'Node.js' }, { name: 'Express.js' }, { name: 'MongoDB' }, { name: 'REST API' }, { name: 'JavaScript' }],
     projects: [
       {
-        title: 'Web API Project',
-        description: 'Built REST APIs using Java and SQL database.',
-        technologies: ['Java', 'SQL', 'REST API']
+        title: 'Full Stack MERN SaaS Platform',
+        description: 'Designed responsive React UI components. Implemented Express.js REST APIs and MongoDB database schemas.',
+        technologies: ['React', 'Node.js', 'Express.js', 'MongoDB', 'REST API', 'JavaScript']
       }
     ],
     experiences: [
-      {
-        role: 'Software Engineer',
-        company: 'DevStudio',
-        description: 'Developed REST API features using Java and SQL.',
-        startDate: '2022-01-01',
-        current: true
-      }
-    ]
-  };
-
-  const res2 = AtsService.calculateMatch(fullStackJd, partialCandidate);
-  assert(
-    res2.matchPercentage >= 50 && res2.matchPercentage <= 64,
-    'Partial Match Candidate (Missing Spring Boot & Docker/AWS)',
-    `Calculated Score: ${res2.matchPercentage}% (Must NOT be 90-100%. Missing: ${res2.missingRequiredKeywords.join(', ')})`
-  );
-
-  // ----------------------------------------------------
-  // TEST 3 — Keyword-Heavy Candidate (Skills only, 0 experience details)
-  // ----------------------------------------------------
-  const keywordHeavyCandidate = {
-    user: { name: 'Keyword Spammer', email: 'spam@test.com' },
-    profile: { title: 'Engineer' },
-    skills: [
-      { name: 'Java' }, { name: 'Spring Boot' }, { name: 'SQL' },
-      { name: 'REST API' }, { name: 'Docker' }, { name: 'AWS' }
+      { role: 'Software Engineer Intern', company: 'SaaS Startup', startDate: '2024-01-01', endDate: '2024-07-01', description: 'Developed React and Node.js REST API features.' }
     ],
-    projects: [],
-    experiences: []
+    educations: [{ degree: 'B.E.', fieldOfStudy: 'Computer Science' }]
   };
 
-  const res3 = AtsService.calculateMatch(fullStackJd, keywordHeavyCandidate);
+  const fullstackJd = `
+    Job Title: Full Stack Developer
+    Experience: 1+ year experience
+    Requirements:
+    - Required: React, Node.js, Express.js, MongoDB, REST APIs, JavaScript
+    - Preferred: Docker, AWS
+  `;
+
+  const res2 = AtsService.calculateMatch(fullstackJd, fullstackCandidate);
   assert(
-    res3.matchPercentage <= 65,
-    'Keyword-Heavy Candidate Without Experience Evidence',
-    `Calculated Score: ${res3.matchPercentage}% (Penalized due to medium evidence strength and 0 experience)`
+    res2.matchPercentage >= 70 && res2.matchPercentage <= 84,
+    'Realistic Test 2: Full Stack Developer JD vs Qualified Junior Candidate',
+    `Calculated Score: ${res2.matchPercentage}% (Expected Strong 70-84%. All required skills matched, missing preferred Docker & AWS)`
   );
 
   // ----------------------------------------------------
-  // TEST 4 — Missing Critical Skill
+  // REALISTIC TEST 3 — Python Data Scientist vs Web Dev Candidate
   // ----------------------------------------------------
-  const missingCriticalCandidate = {
-    user: { name: 'No Java Engineer', email: 'nojava@test.com' },
-    profile: { title: 'Frontend Dev' },
-    skills: [{ name: 'React' }, { name: 'Tailwind CSS' }, { name: 'Git' }],
-    projects: [{ title: 'React App', description: 'Built React UI', technologies: ['React'] }],
-    experiences: [{ role: 'Frontend Dev', startDate: '2023-01-01', current: true }]
+  const webDevCandidate = {
+    user: { name: 'Web Dev Candidate', email: 'webdev@test.com' },
+    profile: { title: 'Web Developer' },
+    skills: [{ name: 'Java' }, { name: 'Spring Boot' }, { name: 'React' }, { name: 'Node.js' }, { name: 'MongoDB' }],
+    projects: [{ title: 'Java Web App', description: 'Built Java Spring Boot backend with React UI', technologies: ['Java', 'Spring Boot', 'React'] }],
+    experiences: [{ role: 'Java Developer', startDate: '2023-01-01', current: true }]
   };
 
-  const res4 = AtsService.calculateMatch(fullStackJd, missingCriticalCandidate);
+  const dataScientistJd = `
+    Job Title: Data Scientist
+    Requirements:
+    - Must have strong experience in Python programming
+    - Required libraries: Pandas, NumPy, Scikit-learn
+    - Experience building Machine Learning models
+    - Strong SQL database querying experience
+  `;
+
+  const res3 = AtsService.calculateMatch(dataScientistJd, webDevCandidate);
   assert(
-    res4.matchPercentage <= 40 && res4.missingRequiredKeywords.includes('Java'),
-    'Missing Critical Skill Penalty',
-    `Calculated Score: ${res4.matchPercentage}% (Correctly flagged missing Java & Spring Boot)`
+    res3.matchPercentage <= 25,
+    'Realistic Test 3: Python Data Scientist JD vs Web Dev Candidate (Role Mismatch)',
+    `Calculated Score: ${res3.matchPercentage}% (Expected VERY LOW <= 25%. 0 required data science skills matched)`
   );
 
   // ----------------------------------------------------
-  // TEST 5 — Fresher vs Senior JD
+  // REALISTIC TEST 4 — Frontend React Developer (Missing TypeScript & Next.js)
   // ----------------------------------------------------
-  const internCandidate = {
-    user: { name: 'Student Intern', email: 'intern@test.com' },
-    profile: { title: 'CS Student' },
-    skills: [{ name: 'Java' }, { name: 'Spring Boot' }, { name: 'SQL' }, { name: 'REST API' }],
-    experiences: [
-      { role: 'Summer Intern', startDate: '2024-06-01', endDate: '2024-09-01', description: 'Assisted with Java REST APIs' }
-    ]
+  const jsReactCandidate = {
+    user: { name: 'JS React Dev', email: 'jsreact@test.com' },
+    profile: { title: 'Frontend Developer' },
+    skills: [{ name: 'React' }, { name: 'JavaScript' }, { name: 'HTML5' }, { name: 'CSS3' }, { name: 'Node.js' }, { name: 'MongoDB' }],
+    projects: [{ title: 'React Web UI', description: 'Created React components with HTML5 and CSS3 styling', technologies: ['React', 'JavaScript', 'HTML5', 'CSS3'] }],
+    experiences: [{ role: 'Frontend Engineer', startDate: '2023-06-01', current: true }]
   };
 
-  const res5 = AtsService.calculateMatch(fullStackJd, internCandidate);
+  const modernFrontendJd = `
+    Job Title: Frontend React Developer
+    Requirements:
+    - Expert knowledge of React and TypeScript
+    - Strong experience with Next.js framework
+    - Solid HTML5 and CSS3 fundamentals
+    - Automated unit testing experience (Jest/Cypress)
+  `;
+
+  const res4 = AtsService.calculateMatch(modernFrontendJd, jsReactCandidate);
   assert(
-    res5.scoreBreakdown?.experience.status === 'Seniority Mismatch' && res5.matchPercentage <= 68,
-    'Fresher Applying for Senior 5+ Years Role',
-    `Calculated Score: ${res5.matchPercentage}%, Status: ${res5.scoreBreakdown?.experience.status}`
+    res4.matchPercentage >= 42 && res4.matchPercentage <= 60 && res4.missingRequiredKeywords.includes('TypeScript'),
+    'Realistic Test 4: Frontend React Developer (Missing TypeScript & Next.js)',
+    `Calculated Score: ${res4.matchPercentage}% (Expected MODERATE 42-60%. JS != TS, missing TypeScript, Next.js, Testing)`
   );
 
   // ----------------------------------------------------
-  // TEST 6 — Java Boundary (JavaScript != Java)
+  // REALISTIC TEST 5 — Senior DevOps Engineer vs MERN Candidate
   // ----------------------------------------------------
-  const jsCandidate = {
-    user: { name: 'JS Developer', email: 'js@test.com' },
-    profile: { title: 'JavaScript Developer', bio: 'Building applications with JavaScript and Node.js.' },
-    skills: [{ name: 'JavaScript' }, { name: 'Node.js' }],
-    projects: [{ title: 'JS App', description: 'Created fullstack JavaScript app with Node.js', technologies: ['JavaScript', 'Node.js'] }],
-    experiences: [{ role: 'JS Engineer', description: 'Worked with JavaScript and Express', startDate: '2023-01-01', current: true }]
-  };
+  const devopsJd = `
+    Job Title: Senior DevOps Engineer
+    Experience: 5+ years experience required
+    Requirements:
+    - AWS cloud platform infrastructure
+    - Docker containerization and Kubernetes cluster management
+    - Infrastructure as Code using Terraform
+    - CI/CD pipeline automation and Linux administration
+  `;
 
+  const res5 = AtsService.calculateMatch(devopsJd, fresherNodeReactCandidate);
+  assert(
+    res5.matchPercentage <= 20,
+    'Realistic Test 5: Senior DevOps Engineer JD vs MERN Fresher (Severe Mismatch)',
+    `Calculated Score: ${res5.matchPercentage}% (Expected VERY LOW <= 20%. Severe role, technology, and seniority mismatch)`
+  );
+
+  // ----------------------------------------------------
+  // REALISTIC TEST 6 — Java vs JavaScript Boundary Protection
+  // ----------------------------------------------------
   const javaOnlyJd = 'Requirements: Java, Spring Boot, SQL';
-  const res6 = AtsService.calculateMatch(javaOnlyJd, jsCandidate);
+  const res6 = AtsService.calculateMatch(javaOnlyJd, jsReactCandidate);
   assert(
     res6.missingRequiredKeywords.includes('Java') && !res6.matchedKeywords.includes('Java'),
     'Java vs JavaScript Boundary Protection (No False Match)',
@@ -185,9 +179,9 @@ function runAtsTests() {
   );
 
   // ----------------------------------------------------
-  // TEST 7 — No JD Behavior
+  // REALISTIC TEST 7 — No-JD Behavior
   // ----------------------------------------------------
-  const res7 = AtsService.calculateMatch('', strongCandidate);
+  const res7 = AtsService.calculateMatch('', fullstackCandidate);
   assert(
     res7.hasJobDescription === false && res7.resumeHealthScore! >= 80 && res7.message.includes('Add a Job Description'),
     'No-JD Behavior (Resume Health Score)',
@@ -195,7 +189,7 @@ function runAtsTests() {
   );
 
   console.log('\n==================================================');
-  console.log(`📊 TEST RESULTS: ${passed} / ${total} PASSED`);
+  console.log(`📊 STRICT ATS V2 TEST RESULTS: ${passed} / ${total} PASSED`);
   console.log('==================================================\n');
 
   if (passed !== total) {
@@ -203,4 +197,4 @@ function runAtsTests() {
   }
 }
 
-runAtsTests();
+runStrictAtsV2Tests();
