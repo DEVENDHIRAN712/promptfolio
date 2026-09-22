@@ -1,0 +1,6 @@
+name = "promptfolio"
+main = "index.js" # Change to server.js or app.js if yours is named differently
+compatibility_date = "2026-09-22"
+
+# If you need Node.js compatibility (often required for Express/Mongoose)
+compatibility_flags = [ "nodejs_compat" ]
