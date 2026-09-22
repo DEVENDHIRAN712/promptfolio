@@ -1,5 +1,5 @@
 name = "promptfolio"
-main = main = "./src/index.ts" # Change to server.js or app.js if yours is named differently
+main = "./src/index.ts" # Change to server.js or app.js if yours is named differently
 compatibility_date = "2026-09-22"
 
 # If you need Node.js compatibility (often required for Express/Mongoose)
